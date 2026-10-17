@@ -17,6 +17,7 @@ use App\Application\Shared\Bus\CommandBusInterface;
 use App\Application\Shared\Bus\QueryBusInterface;
 use App\Application\Shared\DTO\TabularExport;
 use App\Infrastructure\Http\Export\XlsExporter;
+use App\Infrastructure\Http\UploadedImageValidator;
 use DateTimeImmutable;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -47,6 +48,7 @@ class ProductController extends AbstractController
     public function __construct(
         private readonly CommandBusInterface $commandBus,
         private readonly QueryBusInterface $queryBus,
+        private readonly UploadedImageValidator $uploadedImageValidator,
         private readonly string $mediaDir = '/app/var/media',
     ) {
     }
@@ -187,9 +189,13 @@ class ProductController extends AbstractController
         if (!$file instanceof UploadedFile) {
             return $this->json(['message' => 'No file uploaded'], Response::HTTP_BAD_REQUEST);
         }
+        $extension = $this->uploadedImageValidator->extension($file);
+        if (null === $extension) {
+            return $this->json(['message' => 'Image must be a supported image and at most 8 MB'], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
 
         return $this->json($this->commandBus->dispatch(
-            new UploadProductImageCommand($id, $file->getPathname(), $file->getClientOriginalExtension())
+            new UploadProductImageCommand($id, $file->getPathname(), $extension)
         ));
     }
 

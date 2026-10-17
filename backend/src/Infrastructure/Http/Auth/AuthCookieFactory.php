@@ -9,18 +9,15 @@ use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * All three auth cookies (access_token, refresh_token, csrf_token) are set with
- * SameSite=Strict. That's safe here only because the frontend and this API are
- * always served from the same origin (nginx proxies both — see
+ * All three auth cookies (access_token, refresh_token, csrf_token) use the configured
+ * SameSite policy, which defaults to Strict. That's safe here because the frontend and
+ * this API are served from the same origin (nginx proxies both — see
  * infrastructure/nginx/nginx.dev.conf / nginx.prod.conf). SameSite=Strict cookies
  * are not sent on cross-site requests at all, including top-level cross-site
- * navigation (unlike Lax). If this backend is ever deployed with the SPA and the
- * API on genuinely different registrable domains (not just a subdomain split
- * behind the same reverse proxy), every authenticated request will silently drop
- * these cookies and login will appear to succeed but never actually persist.
- * Downgrade to SameSite=Lax for access_token/refresh_token if that split is ever
- * needed (csrf_token can stay Strict either way, since it's read via
- * document.cookie, not sent automatically by the browser as a cross-site cookie).
+ * navigation (unlike Lax). If the SPA and API are ever deployed on different
+ * registrable domains, SameSite=Lax can be configured after reviewing the CSRF
+ * implications. SameSite=None is deliberately rejected: the refresh route relies
+ * on cross-site cookie suppression as a defense-in-depth control.
  */
 final class AuthCookieFactory
 {
@@ -28,11 +25,11 @@ final class AuthCookieFactory
     {
     }
 
-    /** @return ''|'lax'|'none'|'strict'|null */
-    private function validatedSameSite(): ?string
+    private function validatedSameSite(): string
     {
-        return match ($this->sameSite) {
-            '', 'lax', 'none', 'strict' => $this->sameSite,
+        return match (strtolower(trim($this->sameSite))) {
+            'lax' => 'lax',
+            'strict' => 'strict',
             default => 'strict',
         };
     }
@@ -107,7 +104,7 @@ final class AuthCookieFactory
                 ->withPath('/')
                 ->withSecure($this->cookieSecure)
                 ->withHttpOnly(true)
-                ->withSameSite('strict')
+                ->withSameSite($this->validatedSameSite())
         );
         // Double-submit CSRF cookie: deliberately NOT httpOnly — the frontend reads
         // it via document.cookie and echoes it back as the X-CSRF-Token header (see

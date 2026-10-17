@@ -6,7 +6,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - "${POSTGRES_PORT_EXTERNAL:-5434}:5432"
+      - "127.0.0.1:${POSTGRES_PORT_EXTERNAL:-5434}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -38,7 +38,7 @@ services:
       JWT_ACCESS_TTL_SECS: ${JWT_ACCESS_TTL_SECS:-900}
       JWT_REFRESH_TTL_SECS: ${JWT_REFRESH_TTL_SECS:-604800}
       COOKIE_SECURE: ${COOKIE_SECURE:-false}
-      COOKIE_SAME_SITE: ${COOKIE_SAME_SITE:-Lax}
+      COOKIE_SAME_SITE: ${COOKIE_SAME_SITE:-Strict}
       MEDIA_DIR: /app/var/media
     volumes: &backend-volumes
       - ./backend:/app
@@ -74,7 +74,7 @@ services:
     ports:
       # Web UI to inspect emails sent by the app/worker during local dev — the
       # SMTP port (1025) stays internal to the compose network.
-      - "${MAILPIT_UI_PORT:-8025}:8025"
+      - "127.0.0.1:${MAILPIT_UI_PORT:-8025}:8025"
 
   frontend:
     build:
@@ -98,7 +98,7 @@ services:
       context: ./infrastructure/nginx
       dockerfile: Dockerfile.dev
     ports:
-      - "${NGINX_PORT:-80}:80"
+      - "127.0.0.1:${NGINX_PORT:-80}:80"
     volumes:
       - ./backend/var/media:/srv/media:ro
       - ./backend/public/bundles:/app/public/bundles:ro

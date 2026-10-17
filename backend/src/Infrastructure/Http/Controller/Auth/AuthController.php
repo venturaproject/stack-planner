@@ -23,6 +23,7 @@ use App\Domain\Auth\Exception\TotpRequiredException;
 use App\Infrastructure\Http\Auth\AuthCookieFactory;
 use App\Infrastructure\Http\Validation\ReadsJsonBody;
 use App\Infrastructure\Http\Validation\ThrowsValidationFailure;
+use App\Infrastructure\Http\UploadedImageValidator;
 use App\Infrastructure\Security\Symfony\SecurityUser;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -52,6 +53,7 @@ class AuthController extends AbstractController
         private readonly JWTTokenManagerInterface $jwtManager,
         private readonly ActivationLinkSigner $activationLinkSigner,
         private readonly PasswordResetLinkSigner $passwordResetLinkSigner,
+        private readonly UploadedImageValidator $uploadedImageValidator,
     ) {
     }
 
@@ -307,9 +309,13 @@ class AuthController extends AbstractController
         if (!$file instanceof UploadedFile) {
             return $this->json(['message' => 'No file uploaded'], Response::HTTP_BAD_REQUEST);
         }
+        $extension = $this->uploadedImageValidator->extension($file);
+        if (null === $extension) {
+            return $this->json(['message' => 'Avatar must be a supported image and at most 8 MB'], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
 
         return $this->json($this->commandBus->dispatch(
-            new UploadAvatarCommand($user->domainUser()->requireId(), $file->getPathname(), $file->getClientOriginalExtension())
+            new UploadAvatarCommand($user->domainUser()->requireId(), $file->getPathname(), $extension)
         ));
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Controller\Product;
 
 use App\Tests\Support\DatabaseWebTestCase;
+use App\Tests\Support\TestImage;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 final class ProductControllerTest extends DatabaseWebTestCase
@@ -158,7 +159,7 @@ final class ProductControllerTest extends DatabaseWebTestCase
         $product = $this->createProduct($token, 'IMG-0001');
 
         $path = sys_get_temp_dir().'/product-image-'.uniqid().'.png';
-        file_put_contents($path, 'fake-image-bytes');
+        file_put_contents($path, TestImage::onePixelPng());
         $file = new UploadedFile($path, 'photo.png', 'image/png', null, true);
 
         $this->client->request(
@@ -208,7 +209,7 @@ final class ProductControllerTest extends DatabaseWebTestCase
         $product = $this->createProduct($token, 'IMG-0004');
 
         $path = sys_get_temp_dir().'/product-image-'.uniqid().'.png';
-        file_put_contents($path, 'fake-image-bytes');
+        file_put_contents($path, TestImage::onePixelPng());
         $file = new UploadedFile($path, 'photo.png', 'image/png', null, true);
         $this->client->request('POST', '/api/products/'.$product['id'].'/image', [], ['image' => $file], $this->authHeaders($token));
         self::assertResponseIsSuccessful();
@@ -219,7 +220,7 @@ final class ProductControllerTest extends DatabaseWebTestCase
         self::assertSame('image/png', $this->client->getResponse()->headers->get('Content-Type'));
         ob_start();
         $this->client->getResponse()->sendContent();
-        self::assertSame('fake-image-bytes', ob_get_clean());
+        self::assertSame(TestImage::onePixelPng(), ob_get_clean());
 
         @unlink($path);
     }
@@ -230,7 +231,7 @@ final class ProductControllerTest extends DatabaseWebTestCase
         $product = $this->createProduct($token, 'IMG-0005');
 
         $path = sys_get_temp_dir().'/product-image-'.uniqid().'.png';
-        file_put_contents($path, 'fake-image-bytes');
+        file_put_contents($path, TestImage::onePixelPng());
         $file = new UploadedFile($path, 'photo.png', 'image/png', null, true);
         $this->client->request('POST', '/api/products/'.$product['id'].'/image', [], ['image' => $file], $this->authHeaders($token));
         self::assertResponseIsSuccessful();

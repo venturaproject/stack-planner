@@ -25,7 +25,7 @@ services:
     environment:
       APP_ENV: test
       APP_SECRET: test-secret-32-characters-minimum
-      COOKIE_SAME_SITE: lax
+      COOKIE_SAME_SITE: strict
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/boilerplate_ddd_test?serverVersion=16&charset=utf8
       JWT_SECRET: test-secret-not-for-production
       JWT_SECRET_KEY: /tmp/jwt/private.pem

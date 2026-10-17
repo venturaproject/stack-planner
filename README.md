@@ -17,23 +17,29 @@ Blade ni Inertia.
 
 ## Arranque local
 
-Docker está configurado con puertos propios para convivir con otros proyectos:
+Requisitos: Docker con el plugin Compose v2 y `make`. Docker está configurado con puertos propios
+para convivir con otros proyectos:
 
 ```bash
 cp .env.example .env
+cp backend/.env.example backend/.env
 make up
 make ps
-make seed
 ```
+
+El backend instala Composer, genera las claves JWT, aplica migraciones y carga los datos iniciales
+al arrancar por primera vez. Espera a que `make ps` muestre los servicios saludables antes de
+usar la aplicación. Si necesitas volver a cargar los datos iniciales, ejecuta `make seed`.
 
 - App: http://localhost:8093
 - API docs: http://localhost:8093/api/v1/docs
 - Mailpit: http://localhost:8025
 - Demo: `admin@admin.com` / `admin123`
 
-`make seed` crea los datos iniciales; `make seed-force` reconstruye el proyecto DEMO y sus
-issues, épicas, sprints, comentarios, checklist, worklogs y actividad. `make down` detiene los
-servicios y conserva la base de datos. Para inicializar el esquema manualmente: `make migrate`.
+`make seed-force` reconstruye el proyecto DEMO y sus issues, épicas, sprints, comentarios,
+checklist, worklogs y actividad. `make down` detiene los servicios y conserva la base de datos.
+El entrypoint del backend aplica las migraciones al arrancar; para ejecutarlas manualmente usa
+`make migrate`.
 
 ## Dominio Planner
 

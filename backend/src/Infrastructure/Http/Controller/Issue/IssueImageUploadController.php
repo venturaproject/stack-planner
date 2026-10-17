@@ -6,6 +6,7 @@ namespace App\Infrastructure\Http\Controller\Issue;
 
 use App\Application\Issue\Command\UploadIssueImageCommand;
 use App\Application\Shared\Bus\CommandBusInterface;
+use App\Infrastructure\Http\UploadedImageValidator;
 use App\Infrastructure\Security\Symfony\SecurityUser;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -18,10 +19,10 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('IS_AUTHENTICATED_FULLY')]
 final class IssueImageUploadController extends AbstractController
 {
-    private const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-
-    public function __construct(private readonly CommandBusInterface $commandBus)
-    {
+    public function __construct(
+        private readonly CommandBusInterface $commandBus,
+        private readonly UploadedImageValidator $uploadedImageValidator,
+    ) {
     }
 
     #[Route('', methods: ['POST'])]
@@ -31,7 +32,8 @@ final class IssueImageUploadController extends AbstractController
         if (!$file instanceof \Symfony\Component\HttpFoundation\File\UploadedFile) {
             return $this->json(['message' => 'No image uploaded.'], Response::HTTP_BAD_REQUEST);
         }
-        if (!\in_array($file->getMimeType(), self::ALLOWED_MIME_TYPES, true) || $file->getSize() > 8 * 1024 * 1024) {
+        $extension = $this->uploadedImageValidator->extension($file);
+        if (null === $extension) {
             return $this->json(['message' => 'Image must be JPEG, PNG, GIF or WebP and at most 8 MB.'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
@@ -42,7 +44,7 @@ final class IssueImageUploadController extends AbstractController
         return $this->json($this->commandBus->dispatch(new UploadIssueImageCommand(
             $file->getPathname(),
             $file->getClientOriginalName(),
-            $file->guessExtension() ?: 'bin',
+            $extension,
             $file->getMimeType(),
             (int) $file->getSize(),
             $issueId,

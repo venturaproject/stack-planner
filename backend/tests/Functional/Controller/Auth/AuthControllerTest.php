@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Controller\Auth;
 
 use App\Domain\Auth\Entity\User;
+use App\Tests\Support\TestImage;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -110,6 +111,7 @@ class AuthControllerTest extends WebTestCase
                 $cookie->isHttpOnly(),
                 \sprintf('Cookie %s HttpOnly flag should be %s', $cookie->getName(), $expectedHttpOnly ? 'true' : 'false'),
             );
+            self::assertSame('strict', $cookie->getSameSite(), \sprintf('Cookie %s should use SameSite=Strict', $cookie->getName()));
         }
     }
 
@@ -337,7 +339,7 @@ class AuthControllerTest extends WebTestCase
         $token = $this->loginAs('avatar@test.com');
 
         $path = sys_get_temp_dir().'/avatar-'.uniqid().'.png';
-        file_put_contents($path, 'fake-image-bytes');
+        file_put_contents($path, TestImage::onePixelPng());
         $file = new UploadedFile($path, 'avatar.png', 'image/png', null, true);
 
         $this->client->request(

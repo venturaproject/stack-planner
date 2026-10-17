@@ -47,7 +47,7 @@ RUN touch .env \
     && APP_SECRET=build-only-placeholder-32-chars \
         APP_URL=https://planner.invalid \
         COOKIE_SECURE=true \
-        COOKIE_SAME_SITE=Lax \
+        COOKIE_SAME_SITE=Strict \
         CORS_ALLOW_ORIGIN='^https?://localhost(:[0-9]+)?$' \
         DATABASE_URL='postgresql://planner:planner@127.0.0.1:5432/planner?serverVersion=16&charset=utf8' \
         DEFAULT_URI=https://planner.invalid \
