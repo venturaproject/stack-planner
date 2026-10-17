@@ -1,7 +1,7 @@
 # Arquitectura del Planner
 
-El backend debe seguir las convenciones detalladas en
-[`boilerplate-symfony-ddd/ARCHITECTURE.md`](../../boilerplate-symfony-ddd/ARCHITECTURE.md).
+El backend sigue las convenciones detalladas en
+[`ARCHITECTURE.md`](ARCHITECTURE.md), que son la guía vigente dentro de este repositorio.
 Este documento concreta cómo aplicarlas al dominio Planner.
 
 ## Bounded contexts iniciales

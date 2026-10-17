@@ -9,6 +9,8 @@ RUN composer install \
     --prefer-dist \
     --optimize-autoloader \
     --ignore-platform-reqs
+COPY backend/ ./
+RUN composer dump-autoload --no-dev --optimize --classmap-authoritative --no-scripts
 
 # Stage 2: runtime php-fpm
 FROM php:8.4-fpm-alpine
@@ -29,8 +31,6 @@ WORKDIR /app
 COPY backend/ .
 COPY --from=vendor /app/vendor ./vendor
 
-RUN composer dump-autoload --no-dev --optimize --classmap-authoritative 2>/dev/null || true
-
 ENV APP_ENV=prod
 
 # Bakes var/cache/prod into the image so every new/scaled container starts
@@ -42,7 +42,25 @@ ENV APP_ENV=prod
 # the root this RUN runs as — without the chown, any cache Symfony still has
 # to write lazily at runtime (a Doctrine proxy or route not covered by the
 # warmup) would hit a permission-denied write against a root-owned directory.
-RUN php bin/console cache:warmup --env=prod --no-debug \
+RUN touch .env \
+    && php -r "require 'vendor/autoload.php';" \
+    && APP_SECRET=build-only-placeholder-32-chars \
+        APP_URL=https://planner.invalid \
+        COOKIE_SECURE=true \
+        COOKIE_SAME_SITE=Lax \
+        CORS_ALLOW_ORIGIN='^https?://localhost(:[0-9]+)?$' \
+        DATABASE_URL='postgresql://planner:planner@127.0.0.1:5432/planner?serverVersion=16&charset=utf8' \
+        DEFAULT_URI=https://planner.invalid \
+        JWT_ACCESS_TTL_SECS=900 \
+        JWT_PUBLIC_KEY=/tmp/jwt/public.pem \
+        JWT_REFRESH_TTL_SECS=604800 \
+        JWT_SECRET=build-only-placeholder-secret \
+        JWT_SECRET_KEY=/tmp/jwt/private.pem \
+        LOCK_DSN=flock \
+        MAILER_DSN=null://null \
+        MEDIA_DIR=/tmp/media \
+        MESSENGER_TRANSPORT_DSN=in-memory:// \
+        php bin/console cache:warmup --env=prod --no-debug \
     && chown -R www-data:www-data var/cache
 
 COPY infrastructure/backend/entrypoint.sh /entrypoint.sh

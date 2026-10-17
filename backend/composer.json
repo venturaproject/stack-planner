@@ -1,6 +1,6 @@
 {
-    "name": "boilerplate/symfony-ddd",
-    "description": "Symfony 8.1 + React DDD/CQRS reference boilerplate",
+    "name": "boilerplate/planner-backend",
+    "description": "Symfony DDD/CQRS backend for Boilerplate Planner",
     "type": "project",
     "license": "MIT",
     "minimum-stability": "stable",

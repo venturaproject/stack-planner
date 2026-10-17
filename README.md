@@ -1,8 +1,11 @@
+<p align="center">
+  <img src="docs/demo_logo.png" alt="Boilerplate Planner — gestión de proyectos para equipos de desarrollo" width="100%">
+</p>
+
 # Boilerplate Planner
 
-Planner con SPA React independiente y backend Symfony DDD/CQRS, construido sobre la
-estructura e infraestructura de [`boilerplate-symfony-ddd`](../boilerplate-symfony-ddd).
-La aplicación no usa Laravel, Blade ni Inertia.
+Planner con SPA React independiente y backend Symfony DDD/CQRS. La aplicación no usa Laravel,
+Blade ni Inertia.
 
 ## Stack
 

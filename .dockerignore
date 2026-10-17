@@ -1,8 +1,7 @@
 **/.git/
 .github/
 .claude/
-backend/.env.local
-backend/.env.*.local
+**/.env*
 backend/config/jwt/*.pem
 backend/var/
 backend/vendor/
