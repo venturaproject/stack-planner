@@ -50,13 +50,13 @@ final class ProjectMemberController extends AbstractController
     public function add(int $projectId, Request $request): JsonResponse
     {
         $data = $this->decodeJsonBody($request);
-        $userId = trim($this->stringField($data, 'userId'));
+        $email = trim($this->stringField($data, 'email'));
         $role = $this->stringField($data, 'role', 'member');
-        if ('' === $userId) {
-            return $this->json(['message' => 'userId is required'], Response::HTTP_UNPROCESSABLE_ENTITY);
+        if ('' === $email) {
+            return $this->json(['message' => 'email is required'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        return $this->json($this->commandBus->dispatch(new AddProjectMemberCommand($projectId, $userId, $role)), Response::HTTP_CREATED);
+        return $this->json($this->commandBus->dispatch(new AddProjectMemberCommand($projectId, $email, $role)), Response::HTTP_CREATED);
     }
 
     #[Route('/{userId}', methods: ['DELETE'])]

@@ -24,6 +24,13 @@ export interface CreatePlannerProject {
   description: string
 }
 
+export interface ProjectMember {
+  userId: string
+  name: string
+  avatarUrl: string | null
+  role: 'owner' | 'member'
+}
+
 export const projectsApi = {
   async list() {
     const { data } = await axios.get<{ data: PlannerProject[]; meta: { total: number } }>(
@@ -42,5 +49,25 @@ export const projectsApi = {
   async create(payload: CreatePlannerProject) {
     const { data } = await axios.post<PlannerProject>('/api/projects', payload)
     return data
+  },
+
+  async members(projectId: number) {
+    const { data } = await axios.get<{ data: ProjectMember[] }>(
+      `/api/projects/${projectId}/members`,
+    )
+    return data.data
+  },
+
+  async addMember(projectId: number, email: string) {
+    const { data } = await axios.post<{
+      projectId: number
+      userId: string
+      role: ProjectMember['role']
+    }>(`/api/projects/${projectId}/members`, { email, role: 'member' })
+    return data
+  },
+
+  async removeMember(projectId: number, userId: string) {
+    await axios.delete(`/api/projects/${projectId}/members/${encodeURIComponent(userId)}`)
   },
 }

@@ -8,7 +8,7 @@ final readonly class AddProjectMemberCommand
 {
     public function __construct(
         public int $projectId,
-        public string $userId,
+        public string $email,
         public string $role,
     ) {
     }

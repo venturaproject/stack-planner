@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
 import { toast } from 'sonner'
 import { Link } from 'react-router-dom'
 import {
@@ -43,6 +44,9 @@ import { issuesApi, type PlannerIssue } from '@/services/issues-api'
 import { Button } from '@/components/ui/button'
 import { AssigneeAvatarStack } from '@/components/assignee-avatar-stack'
 import { GanttChart } from './components/gantt-chart'
+import { useAuthStore } from '@/lib/auth'
+import { projectsApi } from '@/services/projects-api'
+import { Input } from '@/components/ui/input'
 
 const statusDefinitions = [
   { key: 'todo', labelKey: 'planner_status_todo' },
@@ -140,6 +144,8 @@ export default function ProjectWorkspace({
 }) {
   const { t, currentLang } = useI18n()
   const queryClient = useQueryClient()
+  const isAdmin = useAuthStore((state) => state.roles.includes('ADMIN'))
+  const [memberEmail, setMemberEmail] = useState('')
   const statuses = statusDefinitions.map((status) => ({
     key: status.key,
     label: t(status.labelKey),
@@ -159,6 +165,33 @@ export default function ProjectWorkspace({
   const sprints = useQuery({
     queryKey: ['planner', 'sprints', project.id],
     queryFn: () => planningApi.sprints(project.id),
+  })
+  const members = useQuery({
+    queryKey: ['planner', 'project-members', project.id],
+    queryFn: () => projectsApi.members(project.id),
+    enabled: isAdmin,
+  })
+  const addMember = useMutation({
+    mutationFn: () => projectsApi.addMember(project.id, memberEmail.trim()),
+    onSuccess: async () => {
+      setMemberEmail('')
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['planner', 'project-members', project.id] }),
+        queryClient.invalidateQueries({ queryKey: ['planner', 'projects'] }),
+      ])
+      toast.success(t('planner_project_member_added'))
+    },
+    onError: () => toast.error(t('planner_project_member_error')),
+  })
+  const removeMember = useMutation({
+    mutationFn: (userId: string) => projectsApi.removeMember(project.id, userId),
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['planner', 'project-members', project.id] }),
+        queryClient.invalidateQueries({ queryKey: ['planner', 'projects'] }),
+      ])
+    },
+    onError: () => toast.error(t('planner_project_member_error')),
   })
   const updateStatus = useMutation({
     mutationFn: ({ id, status }: { id: number; status: PlannerIssue['status'] }) =>
@@ -558,6 +591,61 @@ export default function ProjectWorkspace({
                 </CardContent>
               </Card>
             </div>
+            {isAdmin && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t('planner_project_members')}</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <form
+                    className="flex flex-wrap gap-2"
+                    onSubmit={(event) => {
+                      event.preventDefault()
+                      if (memberEmail.trim()) addMember.mutate()
+                    }}
+                  >
+                    <Input
+                      type="email"
+                      value={memberEmail}
+                      onChange={(event) => setMemberEmail(event.target.value)}
+                      placeholder={t('planner_project_member_email')}
+                      aria-label={t('planner_project_member_email')}
+                      required
+                      className="min-w-56 flex-1"
+                    />
+                    <Button type="submit" disabled={addMember.isPending || !memberEmail.trim()}>
+                      {t('planner_project_member_add')}
+                    </Button>
+                  </form>
+                  {members.isError ? (
+                    <p className="text-sm text-destructive">{t('planner_project_member_error')}</p>
+                  ) : (
+                    <ul className="divide-y">
+                      {(members.data ?? []).map((member) => (
+                        <li
+                          key={member.userId}
+                          className="flex items-center justify-between gap-3 py-2"
+                        >
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-medium">{member.name}</p>
+                            <p className="text-xs text-muted-foreground">{member.role}</p>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            disabled={removeMember.isPending}
+                            onClick={() => removeMember.mutate(member.userId)}
+                          >
+                            {t('planner_project_member_remove')}
+                          </Button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
         </Tabs>
       </Main>

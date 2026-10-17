@@ -28,15 +28,17 @@ final class AddProjectMemberHandler
         if (null === $this->projects->findById($command->projectId)) {
             throw ProjectNotFoundException::forId($command->projectId);
         }
-        if (null === $this->users->findById($command->userId)) {
+        $user = $this->users->findByEmail($command->email);
+        if (null === $user) {
             throw new UserNotFoundException();
         }
+        $userId = $user->requireId();
 
-        $member = $this->members->findForProjectAndUser($command->projectId, $command->userId)
-            ?? new ProjectMember($command->projectId, $command->userId, $command->role);
+        $member = $this->members->findForProjectAndUser($command->projectId, $userId)
+            ?? new ProjectMember($command->projectId, $userId, $command->role);
         $member->changeRole($command->role);
         $this->members->save($member);
 
-        return ['projectId' => $command->projectId, 'userId' => $command->userId, 'role' => $member->getRole()];
+        return ['projectId' => $command->projectId, 'userId' => $userId, 'role' => $member->getRole()];
     }
 }

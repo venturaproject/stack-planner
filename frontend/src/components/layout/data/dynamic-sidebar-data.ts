@@ -7,7 +7,6 @@ import {
   IconSettings,
   IconUserCog,
   IconUsers,
-  IconShield,
   IconChecklist,
   IconLayoutKanban,
 } from '@tabler/icons-react'
@@ -58,16 +57,6 @@ export const DynamicSidebarData = (t: TFunc): SidebarData => ({
           url: '/admin/users',
           icon: IconUsers,
           permission: 'users.view',
-        },
-        {
-          title: 'Roles',
-          url: '/admin/roles',
-          icon: IconShield,
-        },
-        {
-          title: 'Permisos',
-          url: '/admin/permissions',
-          icon: IconShield,
         },
       ],
     },

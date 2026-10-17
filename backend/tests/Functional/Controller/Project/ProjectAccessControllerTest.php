@@ -101,7 +101,7 @@ final class ProjectAccessControllerTest extends DatabaseWebTestCase
             [],
             [],
             $this->authHeaders($adminToken) + ['CONTENT_TYPE' => 'application/json'],
-            $this->jsonBody(['userId' => $member->requireId(), 'role' => 'member']),
+            $this->jsonBody(['email' => $member->getEmail(), 'role' => 'member']),
         );
         self::assertResponseStatusCodeSame(201);
 

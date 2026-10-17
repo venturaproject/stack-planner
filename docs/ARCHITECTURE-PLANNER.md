@@ -51,6 +51,18 @@ aggregate que la protege y separar contexts cuando haya reglas y lenguaje propio
 - Permisos y capacidades recibidos desde API son datos de UI para ocultar/mostrar acciones;
   la autorización efectiva siempre se valida en backend.
 
+## Autorización por proyecto
+
+- `ROLE_ADMIN` puede listar y operar sobre todos los proyectos y acceder a los contextos
+  globales de administración.
+- El resto de usuarios solo ve los proyectos asociados a su `ProjectMember`; listados de issues,
+  épicas y sprints se filtran por esos IDs, y las operaciones sobre un issue validan su proyecto.
+- Quien crea un proyecto queda como miembro `owner`. La gestión de miembros está restringida a
+  administradores y no permite retirar al último propietario.
+- Los adjuntos se sirven por una ruta autenticada y ligada al `issueId`; no se exponen mediante
+  el alias estático de medios de nginx.
+- La SPA aplica la misma visibilidad para navegación, pero nunca sustituye los controles de API.
+
 ## Adaptación del producto de origen
 
 La aplicación React, su shell visual y los fixtures de `boilerplate-projects_management`

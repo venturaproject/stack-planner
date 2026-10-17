@@ -9,7 +9,7 @@ Blade ni Inertia.
 
 ## Stack
 
-- Symfony 8.1 / PHP 8.4, Doctrine ORM y PostgreSQL 16.
+- Symfony 7.4 LTS / PHP 8.4, Doctrine ORM y PostgreSQL 16.
 - API interna `/api/*` con JWT en cookies httpOnly y CSRF double-submit.
 - API externa `/api/v1/*` con API Platform 5, tokens Bearer y scopes por recurso.
 - React 19, TypeScript, Vite, React Router, TanStack Query y shadcn/ui.
