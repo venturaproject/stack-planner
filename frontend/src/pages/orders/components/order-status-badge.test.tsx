@@ -10,7 +10,7 @@ import type { OrderStatus } from '@/pages/orders/types'
 // throws at render time instead of silently rendering nothing.
 describe('OrderStatusBadge', () => {
   beforeEach(() => {
-    localStorage.removeItem('lang')
+    window.localStorage.removeItem('lang')
   })
 
   it.each<[OrderStatus, string]>([

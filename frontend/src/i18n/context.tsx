@@ -21,7 +21,7 @@ const localeModules: Record<Language, () => Promise<{ default: Translations }>> 
 }
 
 function getInitialLang(): Language {
-  const saved = localStorage.getItem('lang') as Language
+  const saved = window.localStorage.getItem('lang') as Language
   return saved === 'en' || saved === 'es' ? saved : 'es'
 }
 
@@ -75,7 +75,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   }, [currentLang])
 
   useEffect(() => {
-    localStorage.setItem('lang', currentLang)
+    window.localStorage.setItem('lang', currentLang)
   }, [currentLang])
 
   const changeLanguage = (lang: Language) => setCurrentLang(lang)
