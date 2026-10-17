@@ -11,7 +11,7 @@ Blade ni Inertia.
 
 - Symfony 8.1 / PHP 8.4, Doctrine ORM y PostgreSQL 16.
 - API interna `/api/*` con JWT en cookies httpOnly y CSRF double-submit.
-- API externa opcional `/api/v1/*` con API Platform.
+- API externa `/api/v1/*` con API Platform 5, tokens Bearer y scopes por recurso.
 - React 19, TypeScript, Vite, React Router, TanStack Query y shadcn/ui.
 - Docker Compose con backend, worker, frontend, PostgreSQL, nginx y Mailpit.
 
@@ -55,6 +55,49 @@ backend está documentada en [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 - [Arquitectura del Planner y sus bounded contexts](docs/ARCHITECTURE-PLANNER.md)
 - [Arquitectura general del backend DDD/CQRS](docs/ARCHITECTURE.md)
+
+## API externa de Planner
+
+La API externa usa API Platform 5 y acepta clientes API creados desde **Usuarios → Clientes API**.
+Al crear un cliente, selecciona los permisos necesarios; el secreto se muestra una sola vez.
+Los scopes disponibles para Planner son:
+
+- `projects:read`: listar y buscar todos los proyectos.
+- `tasks:read`: listar, buscar y consultar tareas de todos los proyectos.
+- `tasks:write`: crear tareas, reemplazarlas y cambiar su estado.
+- `*`: acceso completo a todos los recursos y operaciones disponibles.
+
+Los proyectos se exponen en lectura. La creación de proyectos sigue siendo una operación interna,
+porque requiere asignar un propietario de usuario. Los recursos externos de tareas corresponden al
+contexto interno `Issue`.
+
+Canjea el `clientId` y `clientSecret` por un token:
+
+```bash
+curl --request POST http://localhost:8093/api/v1/auth/token \
+  --header 'Content-Type: application/ld+json' \
+  --header 'Accept: application/ld+json' \
+  --data '{"clientId":"<CLIENT_ID>","clientSecret":"<CLIENT_SECRET>"}'
+```
+
+Envía el `accessToken` devuelto como `Authorization: Bearer <ACCESS_TOKEN>`. El access token dura
+una hora; se renueva con `POST /api/v1/auth/refresh` y el `refreshToken`. Solicitar un token nuevo
+con las credenciales del cliente invalida el token anterior de ese cliente.
+
+| Método | Ruta | Permiso |
+| --- | --- | --- |
+| `GET` | `/api/v1/projects` | `projects:read` |
+| `QUERY` | `/api/v1/projects/search` | `projects:read` |
+| `GET` | `/api/v1/tasks` | `tasks:read` |
+| `GET` | `/api/v1/tasks/{id}` | `tasks:read` |
+| `QUERY` | `/api/v1/tasks/search` | `tasks:read` |
+| `POST` | `/api/v1/tasks` | `tasks:write` |
+| `PUT` | `/api/v1/tasks/{id}` | `tasks:write` |
+| `PATCH` | `/api/v1/tasks/{id}/status` | `tasks:write` |
+
+Las operaciones `QUERY` siguen el método de API Platform 5 y reciben sus criterios en JSON en el
+cuerpo de la petición, por ejemplo `{"projectId":1,"status":"in_progress","search":"login"}`.
+La documentación OpenAPI interactiva está en [`/api/v1/docs`](http://localhost:8093/api/v1/docs).
 
 ## Estructura del repositorio
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\Http\Security;
 
+use Lexik\Bundle\JWTAuthenticationBundle\Security\Authenticator\Token\JWTPostAuthenticationToken;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
@@ -40,7 +41,7 @@ final class Require2faEnforcementListener
         }
 
         $token = $this->security->getToken();
-        if (null === $token) {
+        if (!$token instanceof JWTPostAuthenticationToken) {
             return;
         }
 

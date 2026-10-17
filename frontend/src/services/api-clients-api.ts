@@ -29,6 +29,9 @@ export const AVAILABLE_SCOPES = [
   { value: 'orders:read', label: 'Orders — read' },
   { value: 'orders:write', label: 'Orders — write' },
   { value: 'dashboard:read', label: 'Dashboard — read' },
+  { value: 'projects:read', label: 'Projects — read' },
+  { value: 'tasks:read', label: 'Tasks — read' },
+  { value: 'tasks:write', label: 'Tasks — write' },
   { value: '*', label: 'Full access' },
 ]
 

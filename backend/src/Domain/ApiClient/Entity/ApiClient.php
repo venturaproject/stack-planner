@@ -16,6 +16,9 @@ class ApiClient
         'orders:read',
         'orders:write',
         'dashboard:read',
+        'projects:read',
+        'tasks:read',
+        'tasks:write',
     ];
 
     private ?string $id = null;
