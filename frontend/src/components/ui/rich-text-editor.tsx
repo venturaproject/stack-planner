@@ -42,9 +42,17 @@ function ImageNodeView({ node, selected, updateAttributes, deleteNode }: NodeVie
     const file = e.target.files?.[0]
     if (!file) return
     e.target.value = ''
+    const issueId = src.match(
+      /^\/api\/issues\/(\d+)\/(?:attachments\/\d+|legacy-uploads\/[A-Za-z0-9_-]+\.(?:jpg|jpeg|png|gif|webp))$/i,
+    )?.[1]
+    if (!issueId) {
+      toast.error(t('planner_editor_save_issue_before_image_upload'))
+      return
+    }
+
     setUploading(true)
     try {
-      const result = await uploadsApi.image(file)
+      const result = await uploadsApi.image(Number(issueId), file)
       updateAttributes({ src: result.url })
       toast.success(t('planner_editor_image_replaced'))
     } catch {
@@ -294,8 +302,13 @@ export function RichTextEditor({
   const uploadImage = useCallback(
     async (file: File) => {
       if (!editor) return
+      if (undefined === issueId) {
+        toast.error(t('planner_editor_save_issue_before_image_upload'))
+        return
+      }
+
       try {
-        const result = await uploadsApi.image(file, issueId)
+        const result = await uploadsApi.image(issueId, file)
         editor.chain().focus().setImage({ src: result.url }).run()
         if (result.attachment) onAttachmentUploaded?.(result.attachment)
       } catch {
@@ -404,6 +417,7 @@ export function RichTextEditor({
         <ToolbarButton
           onClick={() => fileInputRef.current?.click()}
           title={t('planner_editor_insert_image')}
+          disabled={undefined === issueId}
         >
           <IconPhoto className="h-3.5 w-3.5" />
         </ToolbarButton>
@@ -429,16 +443,19 @@ function ToolbarButton({
   onClick,
   active,
   title,
+  disabled = false,
   children,
 }: {
   onClick: () => void
   active?: boolean
   title: string
+  disabled?: boolean
   children: React.ReactNode
 }) {
   return (
     <button
       type="button"
+      disabled={disabled}
       onMouseDown={(e) => {
         e.preventDefault()
         onClick()
@@ -448,6 +465,7 @@ function ToolbarButton({
         'rounded p-1 transition-colors hover:bg-muted',
         active && 'bg-muted text-foreground',
         !active && 'text-muted-foreground',
+        disabled && 'cursor-not-allowed opacity-50',
       )}
     >
       {children}

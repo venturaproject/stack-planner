@@ -17,7 +17,7 @@ final class ListSprintsHandler
     public function handle(ListSprintsQuery $query): array
     {
         $data = [];
-        foreach ($this->planning->findSprints($query->projectId) as $sprint) {
+        foreach ($this->planning->findSprints($query->projectId, $query->visibleProjectIds) as $sprint) {
             $data[] = ['id' => $sprint->getId(), 'projectId' => $sprint->getProjectId(), 'name' => $sprint->getName(), 'goal' => $sprint->getGoal(), 'status' => $sprint->getStatus(), 'startAt' => $sprint->getStartAt()->format(\DATE_ATOM), 'endAt' => $sprint->getEndAt()->format(\DATE_ATOM)];
         }
 

@@ -17,7 +17,7 @@ final class ListIssuesHandler
     public function handle(ListIssuesQuery $query): array
     {
         $data = [];
-        foreach ($this->issues->findForBoard($query->projectId) as $issue) {
+        foreach ($this->issues->findForBoard($query->projectId, $query->visibleProjectIds) as $issue) {
             $data[] = [
                 'id' => $issue->getId(),
                 'projectId' => $issue->getProjectId(),

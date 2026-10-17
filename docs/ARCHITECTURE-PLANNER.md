@@ -56,9 +56,12 @@ aggregate que la protege y separar contexts cuando haya reglas y lenguaje propio
 La aplicación React, su shell visual y los fixtures de `boilerplate-projects_management`
 son la referencia funcional y de demo. Se portan a SPA/API manteniendo nombres y flujos de
 pantalla. No trasladar modelos Eloquent, controllers, rutas Inertia ni contratos Laravel.
-Las listas y filtros usan read models/API DTOs; las escrituras usan Commands. Los archivos
-de demo viven en `frontend/public/demo` y se sirven con la API/NGINX, mientras las subidas
-nuevas se abstraen mediante el puerto de almacenamiento de Application.
+Las listas y filtros usan read models/API DTOs; las escrituras usan Commands. Los assets
+públicos de demo viven en `frontend/public/demo`. Los adjuntos de incidencias viven en el
+almacenamiento privado del backend y solo se descargan mediante
+`GET /api/issues/{issueId}/attachments/{attachmentId}`, con sesión autenticada y validación
+de pertenencia del adjunto a la incidencia. Nunca se deben exponer bajo el alias estático
+`/media/`; las subidas usan el puerto de almacenamiento de Application.
 
 El fixture Planner refleja `ProjectSeeder` y `AcceptanceTestDataSeeder`: proyecto DEMO,
 issues DEMO-1..14, cuatro épicas, cuatro sprints, checklists, comentarios, worklogs,

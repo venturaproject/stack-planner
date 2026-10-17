@@ -24,9 +24,20 @@ final class DoctrineIssueReadModel extends ServiceEntityRepository implements Is
         parent::__construct($registry, Issue::class);
     }
 
-    public function findForBoard(?int $projectId): array
+    /**
+     * @param int[]|null $visibleProjectIds
+     *
+     * @return Issue[]
+     */
+    public function findForBoard(?int $projectId, ?array $visibleProjectIds = null): array
     {
         $query = $this->createQueryBuilder('i')->orderBy('i.dueAt', 'ASC');
+        if (null !== $visibleProjectIds) {
+            if ([] === $visibleProjectIds) {
+                return [];
+            }
+            $query->andWhere('i.projectId IN (:visibleProjectIds)')->setParameter('visibleProjectIds', $visibleProjectIds);
+        }
         if (null !== $projectId) {
             $query->andWhere('i.projectId = :projectId')->setParameter('projectId', $projectId);
         }

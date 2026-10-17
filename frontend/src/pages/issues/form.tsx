@@ -78,7 +78,7 @@ export default function IssueFormPage({
         title: t('planner_issue_template_bug_title'),
         type: 'bug' as const,
         priority: 'high' as const,
-        description: `<p><strong>${t('planner_issue_template_problem')}</strong></p><p>${t('planner_issue_template_problem_description')}</p><p><strong>${t('planner_issue_template_steps')}</strong></p><ol><li>${t('planner_issue_template_step_one')}</li><li>${t('planner_issue_template_step_two')}</li><li>${t('planner_issue_template_step_three')}</li></ol><p><strong>${t('planner_issue_template_expected')}</strong></p><p>${t('planner_issue_template_expected_description')}</p><p><strong>${t('planner_issue_template_sample_image')}</strong></p><p><img src="/demo/attachments/DEMO-4/lKs5G8TylIB9d9THDVWENHddoKEKXLEoOhj2mbWh.png" alt="${t('planner_issue_template_image_alt')}" /></p>`,
+        description: `<p><strong>${t('planner_issue_template_problem')}</strong></p><p>${t('planner_issue_template_problem_description')}</p><p><strong>${t('planner_issue_template_steps')}</strong></p><ol><li>${t('planner_issue_template_step_one')}</li><li>${t('planner_issue_template_step_two')}</li><li>${t('planner_issue_template_step_three')}</li></ol><p><strong>${t('planner_issue_template_expected')}</strong></p><p>${t('planner_issue_template_expected_description')}</p>`,
       },
     },
     {

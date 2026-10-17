@@ -9,7 +9,7 @@ use App\Domain\Project\Entity\Project;
 interface ProjectReadModelInterface
 {
     /** @return Project[] */
-    public function findAll(): array;
+    public function findVisibleTo(?string $memberUserId): array;
 
     public function countIssues(int $projectId): int;
 

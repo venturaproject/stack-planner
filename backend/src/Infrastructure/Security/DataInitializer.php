@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Infrastructure\Security;
 
 use App\Application\Auth\Security\PasswordHasherInterface;
+use App\Application\Shared\Storage\FileStorageInterface;
 use App\Domain\Auth\Entity\Permission;
 use App\Domain\Auth\Entity\Role;
 use App\Domain\Auth\Entity\User;
@@ -32,11 +33,16 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 #[AsCommand(name: 'app:seed', description: 'Seed initial data: roles, permissions, admin user and sample catalog data')]
 class DataInitializer extends Command
 {
+    private const string DEMO_ATTACHMENT_FILENAME = 'lKs5G8TylIB9d9THDVWENHddoKEKXLEoOhj2mbWh.png';
+
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly PasswordHasherInterface $hasher,
+        private readonly FileStorageInterface $storage,
         #[Autowire('%kernel.environment%')]
         private readonly string $environment,
+        #[Autowire('%kernel.project_dir%/fixtures/demo/attachments/DEMO-4/lKs5G8TylIB9d9THDVWENHddoKEKXLEoOhj2mbWh.png')]
+        private readonly string $demoAttachmentFixture,
     ) {
         parent::__construct();
     }
@@ -316,8 +322,8 @@ class DataInitializer extends Command
             $this->em->persist(new IssueWorklog((int) $issues['DEMO-2']->getId(), 'Marcos Ruiz', 90, 'Implementación inicial del middleware', new DateTimeImmutable('2026-08-02T14:00:00')));
             $this->em->persist(new IssueLink((int) $issues['DEMO-2']->getId(), (int) $issues['DEMO-4']->getId(), 'blocks'));
 
-            $attachment = 'lKs5G8TylIB9d9THDVWENHddoKEKXLEoOhj2mbWh.png';
-            $this->em->persist(new IssueAttachment((int) $issues['DEMO-4']->getId(), $attachment, 'LISTROWS.png', 'image/png', 10122756));
+            $attachment = new IssueAttachment((int) $issues['DEMO-4']->getId(), self::DEMO_ATTACHMENT_FILENAME, 'LISTROWS.png', 'image/png', 10122756);
+            $this->em->persist($attachment);
 
             foreach ([
                 ['DEMO-1', 'todo', 'in_progress', '2026-07-31'], ['DEMO-1', 'in_progress', 'done', '2026-08-02'],
@@ -328,10 +334,13 @@ class DataInitializer extends Command
                 $this->em->persist(new IssueActivity((int) $issues[$issueKey]->getId(), 'Admin User', 'status', $oldValue, $newValue, new DateTimeImmutable($createdAt)));
             }
             $this->em->flush();
+
             $io->writeln('  <fg=green>+</> DEMO project, 14 issues, 4 epics and 4 sprints with historical reporting data');
         } else {
             $io->writeln('  <fg=yellow>~</> Planner projects already exist, skipping');
         }
+
+        $this->ensureDemoAttachmentIsPrivate();
 
         $io->success([
             'Seed complete.',
@@ -344,5 +353,50 @@ class DataInitializer extends Command
         ]);
 
         return Command::SUCCESS;
+    }
+
+    private function ensureDemoAttachmentIsPrivate(): void
+    {
+        $issue = $this->em->getRepository(Issue::class)->findOneBy(['issueKey' => 'DEMO-4']);
+        if (!$issue instanceof Issue || null === $issue->getId()) {
+            return;
+        }
+
+        $attachment = $this->em->getRepository(IssueAttachment::class)->findOneBy([
+            'issueId' => $issue->getId(),
+            'filename' => self::DEMO_ATTACHMENT_FILENAME,
+        ]);
+        if (!$attachment instanceof IssueAttachment || null === $attachment->getId()) {
+            return;
+        }
+
+        $directory = 'issue-attachments/'.$issue->getIssueKey();
+        if (!$this->storage->exists($directory, self::DEMO_ATTACHMENT_FILENAME)) {
+            $this->storage->copy($directory, self::DEMO_ATTACHMENT_FILENAME, $this->demoAttachmentFixture);
+        }
+
+        $publicUrl = '/demo/attachments/DEMO-4/'.self::DEMO_ATTACHMENT_FILENAME;
+        $description = $issue->getDescription() ?? '';
+        if (!str_contains($description, $publicUrl)) {
+            return;
+        }
+
+        $description = str_replace(
+            $publicUrl,
+            \sprintf('/api/issues/%d/attachments/%d', $issue->getId(), $attachment->getId()),
+            $description,
+        );
+        $issue->updateDetails(
+            $issue->getTitle(),
+            $issue->getType(),
+            $issue->getPriority(),
+            $description,
+            $issue->getDueAt(),
+            $issue->getEpicId(),
+            $issue->getSprintId(),
+            $issue->getStoryPoints(),
+            $issue->getAssigneeNames(),
+        );
+        $this->em->flush();
     }
 }

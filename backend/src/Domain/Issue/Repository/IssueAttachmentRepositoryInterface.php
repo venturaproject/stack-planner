@@ -8,5 +8,7 @@ use App\Domain\Issue\Entity\IssueAttachment;
 
 interface IssueAttachmentRepositoryInterface
 {
+    public function findById(int $id): ?IssueAttachment;
+
     public function save(IssueAttachment $attachment): void;
 }

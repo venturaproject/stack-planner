@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace App\Tests\Integration\Security;
 
+use App\Application\Shared\Storage\FileStorageInterface;
 use App\Domain\Auth\Entity\Permission;
 use App\Domain\Auth\Entity\Role;
 use App\Domain\Auth\Entity\User;
+use App\Domain\Issue\Entity\Issue;
+use App\Domain\Issue\Entity\IssueAttachment;
 use App\Domain\Order\Repository\OrderRepositoryInterface;
 use App\Infrastructure\Security\DataInitializer;
 use App\Infrastructure\Security\Symfony\SecurityUser;
@@ -36,6 +39,19 @@ final class DataInitializerTest extends DatabaseKernelTestCase
 
         $orders = self::getContainer()->get(OrderRepositoryInterface::class);
         self::assertSame(0, $orders->countAll(null));
+
+        $issue = $this->em->getRepository(Issue::class)->findOneBy(['issueKey' => 'DEMO-4']);
+        self::assertInstanceOf(Issue::class, $issue);
+        $attachment = $this->em->getRepository(IssueAttachment::class)->findOneBy(['issueId' => $issue->getId()]);
+        self::assertInstanceOf(IssueAttachment::class, $attachment);
+        self::assertStringContainsString(
+            \sprintf('/api/issues/%d/attachments/%d', $issue->getId(), $attachment->getId()),
+            $issue->getDescription() ?? '',
+        );
+        self::assertTrue(self::getContainer()->get(FileStorageInterface::class)->exists(
+            'issue-attachments/'.$issue->getIssueKey(),
+            $attachment->getFilename(),
+        ));
     }
 
     public function testRunningTwiceWithoutForceDoesNotDuplicateData(): void

@@ -8,6 +8,7 @@ use App\Application\Project\Command\CreateProjectCommand;
 use App\Application\Project\Query\ListProjectsQuery;
 use App\Application\Shared\Bus\CommandBusInterface;
 use App\Application\Shared\Bus\QueryBusInterface;
+use App\Infrastructure\Security\ProjectAccessPolicy;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,13 +23,14 @@ final class ProjectController extends AbstractController
     public function __construct(
         private readonly QueryBusInterface $queryBus,
         private readonly CommandBusInterface $commandBus,
+        private readonly ProjectAccessPolicy $projectAccess,
     ) {
     }
 
     #[Route('', methods: ['GET'])]
     public function list(): JsonResponse
     {
-        return $this->json($this->queryBus->ask(new ListProjectsQuery()));
+        return $this->json($this->queryBus->ask(new ListProjectsQuery($this->projectAccess->memberUserIdOrNullForProjectList())));
     }
 
     #[Route('', methods: ['POST'])]

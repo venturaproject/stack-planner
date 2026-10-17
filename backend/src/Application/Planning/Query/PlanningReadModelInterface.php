@@ -9,9 +9,17 @@ use App\Domain\Planning\Entity\Sprint;
 
 interface PlanningReadModelInterface
 {
-    /** @return Epic[] */
-    public function findEpics(?int $projectId): array;
+    /**
+     * @param int[]|null $visibleProjectIds
+     *
+     * @return Epic[]
+     */
+    public function findEpics(?int $projectId, ?array $visibleProjectIds = null): array;
 
-    /** @return Sprint[] */
-    public function findSprints(?int $projectId): array;
+    /**
+     * @param int[]|null $visibleProjectIds
+     *
+     * @return Sprint[]
+     */
+    public function findSprints(?int $projectId, ?array $visibleProjectIds = null): array;
 }

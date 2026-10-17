@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/api/dashboard/', methods: ['GET'])]
-#[IsGranted('IS_AUTHENTICATED_FULLY')]
+#[IsGranted('ROLE_ADMIN')]
 class DashboardController extends AbstractController
 {
     public function __construct(private readonly QueryBusInterface $queryBus)

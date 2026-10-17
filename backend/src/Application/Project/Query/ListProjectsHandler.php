@@ -17,7 +17,7 @@ final class ListProjectsHandler
     public function handle(ListProjectsQuery $query): array
     {
         $data = [];
-        foreach ($this->projects->findAll() as $project) {
+        foreach ($this->projects->findVisibleTo($query->memberUserId) as $project) {
             $data[] = [
                 'id' => $project->getId(),
                 'name' => $project->getName(),

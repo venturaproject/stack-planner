@@ -25,6 +25,7 @@ final class AuthCookieFactory
     {
     }
 
+    /** @return 'lax'|'strict' */
     private function validatedSameSite(): string
     {
         return match (strtolower(trim($this->sameSite))) {

@@ -6,7 +6,10 @@ namespace App\Application\Issue\Query;
 
 final readonly class ListIssuesQuery
 {
-    public function __construct(public ?int $projectId = null)
-    {
+    /** @param int[]|null $visibleProjectIds */
+    public function __construct(
+        public ?int $projectId = null,
+        public ?array $visibleProjectIds = null,
+    ) {
     }
 }

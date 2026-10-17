@@ -3,6 +3,7 @@
 .claude/
 **/.env*
 backend/config/jwt/*.pem
+backend/fixtures/demo/
 backend/var/
 backend/vendor/
 **/node_modules/

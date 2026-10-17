@@ -14,6 +14,11 @@ final class DoctrineIssueAttachmentRepository implements IssueAttachmentReposito
     {
     }
 
+    public function findById(int $id): ?IssueAttachment
+    {
+        return $this->entityManager->find(IssueAttachment::class, $id);
+    }
+
     public function save(IssueAttachment $attachment): void
     {
         $this->entityManager->persist($attachment);

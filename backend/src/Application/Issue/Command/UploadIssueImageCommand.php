@@ -12,7 +12,7 @@ final readonly class UploadIssueImageCommand
         public string $extension,
         public string $mimeType,
         public int $sizeBytes,
-        public ?int $issueId,
+        public int $issueId,
         public string $authorName,
     ) {
     }

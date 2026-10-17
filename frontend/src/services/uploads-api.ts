@@ -19,14 +19,17 @@ export interface ImageUploadResponse {
 }
 
 export const uploadsApi = {
-  async image(file: File, issueId?: number) {
+  async image(issueId: number, file: File) {
     const form = new FormData()
     form.append('file', file)
-    if (undefined !== issueId) form.append('issue_id', String(issueId))
 
-    const { data } = await axios.post<ImageUploadResponse>('/api/uploads/image', form, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    })
+    const { data } = await axios.post<ImageUploadResponse>(
+      `/api/issues/${issueId}/attachments`,
+      form,
+      {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      },
+    )
 
     return data
   },

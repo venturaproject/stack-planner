@@ -10,7 +10,7 @@ final class CustomerControllerTest extends DatabaseWebTestCase
 {
     private function authedToken(): string
     {
-        $this->createUser('user@test.com');
+        $this->createAdmin('user@test.com');
 
         return $this->loginAs('user@test.com');
     }
@@ -20,6 +20,15 @@ final class CustomerControllerTest extends DatabaseWebTestCase
         $this->client->request('GET', '/api/customers');
 
         self::assertResponseStatusCodeSame(401);
+    }
+
+    public function testRequiresAdministratorRole(): void
+    {
+        $this->createUser('member@test.com');
+        $token = $this->loginAs('member@test.com');
+        $this->client->request('GET', '/api/customers', [], [], $this->authHeaders($token));
+
+        self::assertResponseStatusCodeSame(403);
     }
 
     public function testFullLifecycle(): void

@@ -22,9 +22,20 @@ final class DoctrineProjectRepository extends ServiceEntityRepository implements
         parent::__construct($registry, Project::class);
     }
 
-    public function findAll(): array
+    /** @return Project[] */
+    public function findVisibleTo(?string $memberUserId): array
     {
-        return $this->createQueryBuilder('p')->orderBy('p.createdAt', 'DESC')->getQuery()->getResult();
+        $query = $this->createQueryBuilder('p')->orderBy('p.createdAt', 'DESC');
+        if (null !== $memberUserId) {
+            $members = $this->getEntityManager()->createQueryBuilder()
+                ->select('projectMember.projectId')
+                ->from(ProjectMember::class, 'projectMember')
+                ->where('projectMember.userId = :memberUserId')
+                ->getDQL();
+            $query->andWhere($query->expr()->in('p.id', $members))->setParameter('memberUserId', $memberUserId);
+        }
+
+        return $query->getQuery()->getResult();
     }
 
     public function findById(int $projectId): ?Project

@@ -17,7 +17,7 @@ final class ListEpicsHandler
     public function handle(ListEpicsQuery $query): array
     {
         $data = [];
-        foreach ($this->planning->findEpics($query->projectId) as $epic) {
+        foreach ($this->planning->findEpics($query->projectId, $query->visibleProjectIds) as $epic) {
             $data[] = ['id' => $epic->getId(), 'projectId' => $epic->getProjectId(), 'key' => $epic->getEpicKey(), 'name' => $epic->getName(), 'description' => $epic->getDescription(), 'status' => $epic->getStatus(), 'progress' => $epic->getProgress()];
         }
 

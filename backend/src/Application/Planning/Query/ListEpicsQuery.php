@@ -6,7 +6,10 @@ namespace App\Application\Planning\Query;
 
 final readonly class ListEpicsQuery
 {
-    public function __construct(public ?int $projectId = null)
-    {
+    /** @param int[]|null $visibleProjectIds */
+    public function __construct(
+        public ?int $projectId = null,
+        public ?array $visibleProjectIds = null,
+    ) {
     }
 }

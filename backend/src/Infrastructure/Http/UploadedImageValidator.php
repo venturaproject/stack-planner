@@ -25,7 +25,7 @@ final class UploadedImageValidator
         }
 
         $size = $file->getSize();
-        if (null === $size || $size > self::MAX_SIZE_BYTES) {
+        if (false === $size || $size > self::MAX_SIZE_BYTES) {
             return null;
         }
 

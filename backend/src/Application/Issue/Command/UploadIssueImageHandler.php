@@ -23,22 +23,17 @@ final class UploadIssueImageHandler
     ) {
     }
 
-    /** @return array{url: string, attachment?: array<string, mixed>} */
+    /** @return array{url: string, attachment: array<string, mixed>} */
     public function handle(UploadIssueImageCommand $command): array
     {
-        $issue = null !== $command->issueId ? $this->issues->findById($command->issueId) : null;
-        if (null !== $command->issueId && null === $issue) {
+        $issue = $this->issues->findById($command->issueId);
+        if (null === $issue) {
             throw IssueNotFoundException::forId($command->issueId);
         }
 
         $filename = bin2hex(random_bytes(20)).'.'.$command->extension;
-        $directory = null !== $issue ? 'issue-attachments/'.$issue->getIssueKey() : 'issue-uploads';
+        $directory = 'issue-attachments/'.$issue->getIssueKey();
         $this->storage->store($directory, $filename, $command->temporaryPath);
-        $url = '/media/'.$directory.'/'.$filename;
-
-        if (null === $issue) {
-            return ['url' => $url];
-        }
 
         $issueId = $issue->getId();
         if (null === $issueId) {
@@ -47,12 +42,15 @@ final class UploadIssueImageHandler
 
         $attachment = new IssueAttachment($issueId, $filename, $command->originalName, $command->mimeType, $command->sizeBytes);
         $this->attachments->save($attachment);
+        $attachmentId = $attachment->getId()
+            ?? throw new LogicException('The issue attachment must be persisted before returning its URL.');
+        $url = \sprintf('/api/issues/%d/attachments/%d', $issueId, $attachmentId);
 
         return [
             'url' => $url,
             'attachment' => [
-                'id' => $attachment->getId(),
-                'issue_id' => $issue->getId(),
+                'id' => $attachmentId,
+                'issue_id' => $issueId,
                 'user_id' => null,
                 'path' => $directory.'/'.$filename,
                 'original_name' => $attachment->getOriginalName(),

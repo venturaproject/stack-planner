@@ -14,8 +14,12 @@ use App\Domain\Issue\Entity\IssueWorklog;
 
 interface IssueReadModelInterface
 {
-    /** @return Issue[] */
-    public function findForBoard(?int $projectId): array;
+    /**
+     * @param int[]|null $visibleProjectIds null allows all projects; an empty list allows none
+     *
+     * @return Issue[]
+     */
+    public function findForBoard(?int $projectId, ?array $visibleProjectIds = null): array;
 
     public function findById(int $id): ?Issue;
 

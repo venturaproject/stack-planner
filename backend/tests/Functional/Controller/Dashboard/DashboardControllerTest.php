@@ -8,9 +8,9 @@ use App\Tests\Support\DatabaseWebTestCase;
 
 final class DashboardControllerTest extends DatabaseWebTestCase
 {
-    public function testReturnsAggregatedCountsForAuthenticatedUser(): void
+    public function testReturnsAggregatedCountsForAdministrator(): void
     {
-        $this->createUser('dash@test.com');
+        $this->createAdmin('dash@test.com');
         $token = $this->loginAs('dash@test.com');
 
         $this->client->request('GET', '/api/dashboard/', [], [], $this->authHeaders($token));
@@ -27,5 +27,15 @@ final class DashboardControllerTest extends DatabaseWebTestCase
         $this->client->request('GET', '/api/dashboard/');
 
         self::assertResponseStatusCodeSame(401);
+    }
+
+    public function testRequiresAdministratorRole(): void
+    {
+        $this->createUser('user@test.com');
+        $token = $this->loginAs('user@test.com');
+
+        $this->client->request('GET', '/api/dashboard/', [], [], $this->authHeaders($token));
+
+        self::assertResponseStatusCodeSame(403);
     }
 }

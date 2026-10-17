@@ -873,6 +873,7 @@
   "planner_editor_image_replace": "Reemplazar imagen",
   "planner_editor_image_remove": "Eliminar imagen",
   "planner_editor_image_upload_error": "No se pudo subir la imagen",
+  "planner_editor_save_issue_before_image_upload": "Guarda la tarea antes de adjuntar imágenes",
   "planner_editor_image_uploading": "Subiendo…",
   "planner_editor_image_change": "Cambiar",
   "planner_editor_image_remove_button": "Quitar",
