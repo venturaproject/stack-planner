@@ -1,0 +1,44 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: boilerplate_ddd_test
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d boilerplate_ddd_test"]
+      interval: 2s
+      timeout: 5s
+      retries: 15
+
+  test:
+    build:
+      context: .
+      dockerfile: infrastructure/backend/Dockerfile.dev
+    entrypoint: []
+    command: >-
+      sh -ec 'composer install --no-interaction --prefer-dist &&
+      mkdir -p /tmp/jwt &&
+      php bin/console lexik:jwt:generate-keypair --skip-if-exists &&
+      php bin/console doctrine:migrations:migrate --no-interaction &&
+      vendor/bin/phpunit'
+    environment:
+      APP_ENV: test
+      APP_SECRET: test-secret-32-characters-minimum
+      COOKIE_SAME_SITE: lax
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/boilerplate_ddd_test?serverVersion=16&charset=utf8
+      JWT_SECRET: test-secret-not-for-production
+      JWT_SECRET_KEY: /tmp/jwt/private.pem
+      JWT_PUBLIC_KEY: /tmp/jwt/public.pem
+      MAILER_DSN: null://null
+      MESSENGER_TRANSPORT_DSN: in-memory://
+      MEDIA_DIR: /tmp/test_media
+    volumes:
+      - ./backend:/app
+      - composer_cache:/root/.composer
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  composer_cache:

@@ -18,13 +18,14 @@ async function fetchNotifications(): Promise<Notification[]> {
   return data.notifications ?? []
 }
 
-export function useNotifications() {
+export function useNotifications(enabled = true) {
   const qc = useQueryClient()
 
   const { data: notifications = [], isLoading } = useQuery({
     queryKey: QUERY_KEY,
     queryFn: fetchNotifications,
     staleTime: 30_000,
+    enabled,
   })
 
   const invalidate = () => qc.invalidateQueries({ queryKey: QUERY_KEY })

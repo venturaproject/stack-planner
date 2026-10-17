@@ -1,0 +1,10 @@
+{% extends 'emails/layout.html.twig' %}
+
+{% block title %}Welcome!{% endblock %}
+
+{% block body %}
+    <h1>Welcome!</h1>
+    <p>Your account for {{ userEmail }} has been created. Choose your password by opening the secure activation link below.</p>
+    <p><a href="{{ activationUrl }}">Activate your account</a></p>
+    <p class="notice">This link expires in 24 hours and can only be used once.</p>
+{% endblock %}

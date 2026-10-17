@@ -1,5 +1,4 @@
 import React from 'react'
-import { CommandMenu } from '@/components/command-menu'
 
 interface SearchContextType {
   open: boolean
@@ -7,6 +6,9 @@ interface SearchContextType {
 }
 
 const SearchContext = React.createContext<SearchContextType | null>(null)
+const CommandMenu = React.lazy(() =>
+  import('@/components/command-menu').then(({ CommandMenu }) => ({ default: CommandMenu })),
+)
 const fallbackSearchContext: SearchContextType = {
   open: false,
   setOpen: () => {},
@@ -33,7 +35,11 @@ export function SearchProvider({ children }: Props) {
   return (
     <SearchContext.Provider value={{ open, setOpen }}>
       {children}
-      <CommandMenu />
+      {open && (
+        <React.Suspense fallback={null}>
+          <CommandMenu />
+        </React.Suspense>
+      )}
     </SearchContext.Provider>
   )
 }

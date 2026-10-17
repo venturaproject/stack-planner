@@ -1,0 +1,67 @@
+# Validation metadata for Application/Auth/Command DTOs.
+#
+# This lives in Infrastructure config (not as #[Assert\...] attributes on the
+# Command classes themselves) so the Application layer stays framework-free.
+# See ARCHITECTURE.md's "migration seam" note. Validated automatically by
+# #[MapRequestPayload] in the controllers, same as before.
+
+App\Application\Auth\Command\CreateUserCommand:
+    properties:
+        email:
+            - NotBlank: ~
+            - Email: ~
+        firstName:
+            - NotBlank: ~
+        lastName:
+            - NotBlank: ~
+
+App\Application\Auth\Command\UpdateUserCommand:
+    properties:
+        firstName:
+            - NotBlank: ~
+        email:
+            - Email: ~
+
+App\Application\Auth\Command\UpdateProfileCommand:
+    properties:
+        firstName:
+            - NotBlank: ~
+        lastName:
+            - NotBlank: ~
+        preferredLanguage:
+            - Choice: { choices: ['en', 'es'] }
+
+App\Application\Auth\Command\LoginCommand:
+    properties:
+        email:
+            - NotBlank: ~
+        password:
+            - NotBlank: ~
+
+App\Application\Auth\Command\ActivateUserCommand:
+    properties:
+        password:
+            - NotBlank: ~
+            - Length: { min: 8, minMessage: 'Password must be at least 8 characters' }
+
+App\Application\Auth\Command\ResetPasswordCommand:
+    properties:
+        password:
+            - NotBlank: ~
+            - Length: { min: 8, minMessage: 'Password must be at least 8 characters' }
+
+App\Application\Auth\Command\RequestPasswordResetCommand:
+    properties:
+        email:
+            - NotBlank: ~
+            - Email: ~
+
+App\Application\Auth\Command\DisableTotpCommand:
+    properties:
+        password:
+            - NotBlank: ~
+
+App\Application\Auth\Command\ConfirmTotpSetupCommand:
+    properties:
+        code:
+            - NotBlank: ~

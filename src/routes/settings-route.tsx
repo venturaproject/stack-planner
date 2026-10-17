@@ -7,11 +7,14 @@ import NotificationsPage from '@/pages/settings/notifications'
 import DisplayPage from '@/pages/settings/display'
 import AccountPage from '@/pages/settings/account'
 import SecurityPage from '@/pages/settings/security'
+import PermissionsPage from '@/pages/settings/permissions'
 
 export default function SettingsRoute() {
   const { section } = useParams()
 
   switch (section) {
+    case 'permissions':
+      return <PermissionsPage />
     case 'appearance':
       return <AppearancePage />
     case 'notifications':

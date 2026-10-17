@@ -1,0 +1,39 @@
+framework:
+    secret: '%env(APP_SECRET)%'
+    # No HTML forms here to submit a hidden _method field — this is a JSON API
+    # consumed by the SPA over fetch, which sends real PUT/PATCH/DELETE natively.
+    # Leaving this on would let a plain POST spoof its method via the
+    # X-HTTP-METHOD-OVERRIDE header/_method field for no benefit.
+    http_method_override: false
+    handle_all_throwables: true
+
+    # nginx is the only peer that ever reaches this container (see
+    # infrastructure/nginx/*.conf — backend is not otherwise exposed), always
+    # over the Docker Compose private network, so trusting private-range peers
+    # for X-Forwarded-* is safe by construction, not just in front of an extra
+    # LB/CDN. Safe against spoofing: nginx sets X-Forwarded-For via
+    # $proxy_add_x_forwarded_for (append, not raw passthrough of the client's
+    # own header) — see infrastructure/nginx/nginx.*.conf.
+    trusted_proxies: 'private_ranges'
+    trusted_headers: ['x-forwarded-for', 'x-forwarded-host', 'x-forwarded-proto', 'x-forwarded-port']
+
+    session:
+        handler_id: null
+        cookie_secure: auto
+        cookie_samesite: lax
+        storage_factory_id: session.storage.factory.native
+
+    php_errors:
+        log: true
+
+    serializer:
+        enabled: true
+
+    validation:
+        email_validation_mode: html5
+
+when@test:
+    framework:
+        test: true
+        session:
+            storage_factory_id: session.storage.factory.mock_file

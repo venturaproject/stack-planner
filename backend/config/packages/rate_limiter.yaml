@@ -1,0 +1,72 @@
+framework:
+    rate_limiter:
+        # Baseline for every /api/* request (ApiRateLimitListener), keyed per authenticated
+        # user or per IP for anonymous callers. Generous on purpose — it's a safety net
+        # against a runaway/compromised client hammering any endpoint, not meant to be the
+        # tight per-endpoint limits below (login, refresh, ...), which stay in place too.
+        api_limiter:
+            policy: 'sliding_window'
+            limit: 300
+            interval: '1 minute'
+            lock_factory: lock.factory
+
+        login_limiter:
+            policy: 'sliding_window'
+            limit: 5
+            interval: '1 minute'
+            lock_factory: lock.factory
+
+        # /api/auth/activate validates a signature carried entirely in the query string
+        # (see ActivationLinkSigner) — with no limiter, that signature can be brute-forced
+        # for free. Keyed by IP, same as login_limiter, since the caller isn't
+        # authenticated yet.
+        activation_limiter:
+            policy: 'sliding_window'
+            limit: 10
+            interval: '1 minute'
+            lock_factory: lock.factory
+
+        # /api/auth/totp/{confirm,disable} — both require an authenticated session
+        # already, so this is defense in depth (a hijacked/leaked session trying to brute
+        # force a 6-digit TOTP code) rather than the primary defense; keyed per user.
+        totp_limiter:
+            policy: 'sliding_window'
+            limit: 10
+            interval: '1 minute'
+            lock_factory: lock.factory
+
+        # /api/auth/forgot-password — keyed by IP: unauthenticated, and the endpoint always
+        # returns the same response regardless of whether the email exists (see
+        # RequestPasswordResetHandler), so this is what actually stops it being used to
+        # mass-email arbitrary addresses or as an email-enumeration oracle via timing.
+        forgot_password_limiter:
+            policy: 'sliding_window'
+            limit: 5
+            interval: '1 minute'
+            lock_factory: lock.factory
+
+        # /api/auth/reset-password — same signature-brute-force concern as
+        # activation_limiter, same shape.
+        reset_password_limiter:
+            policy: 'sliding_window'
+            limit: 10
+            interval: '1 minute'
+            lock_factory: lock.factory
+
+        refresh_token_limiter:
+            policy: 'sliding_window'
+            limit: 30
+            interval: '1 minute'
+            lock_factory: lock.factory
+
+        api_client_token_limiter:
+            policy: 'sliding_window'
+            limit: 5
+            interval: '1 minute'
+            lock_factory: lock.factory
+
+        api_client_refresh_limiter:
+            policy: 'sliding_window'
+            limit: 30
+            interval: '1 minute'
+            lock_factory: lock.factory

@@ -22,6 +22,7 @@ import { DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { sidebarData } from './layout/data/sidebar-data'
 import { ScrollArea } from './ui/scroll-area'
 import { useI18n } from '@/i18n/context'
+import { axios } from '@/lib/axios'
 
 interface SearchResults {
   users: Array<{
@@ -75,26 +76,21 @@ export function CommandMenu() {
     setIsLoading(true)
 
     // Debounce the search request
+    const controller = new AbortController()
     const timeoutId = setTimeout(() => {
-      fetch(`/admin/search?q=${encodeURIComponent(searchQuery)}`)
-        .then((response) => {
-          if (response.ok) {
-            return response.json()
-          } else {
-            throw new Error(`HTTP error! status: ${response.status}`)
-          }
-        })
-        .then((data) => {
-          setSearchResults(data)
-          setIsLoading(false)
-        })
+      axios
+        .get<SearchResults>('/api/search', { params: { q: searchQuery }, signal: controller.signal })
+        .then(({ data }) => setSearchResults(data))
         .catch((error) => {
-          console.error('Search error:', error)
-          setIsLoading(false)
+          if (error.code !== 'ERR_CANCELED') setSearchResults(null)
         })
+        .finally(() => setIsLoading(false))
     }, 300)
 
-    return () => clearTimeout(timeoutId)
+    return () => {
+      clearTimeout(timeoutId)
+      controller.abort()
+    }
   }, [searchQuery])
 
   // Determine if we're showing search results or navigation

@@ -1,0 +1,259 @@
+import React, { useState, useEffect } from 'react'
+import {
+  IconArrowRightDashed,
+  IconDeviceLaptop,
+  IconMoon,
+  IconSearch,
+  IconSun,
+} from '@tabler/icons-react'
+import { useSearch } from '@/context/search-context'
+import { useTheme } from '@/context/theme-context'
+import { router } from '@/lib/router-singleton'
+import {
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+} from '@/components/ui/command'
+import { DialogTitle, DialogDescription } from '@/components/ui/dialog'
+import { sidebarData } from './layout/data/sidebar-data'
+import { ScrollArea } from './ui/scroll-area'
+import { useI18n } from '@/i18n/context'
+import { searchApi, type SearchResults } from '@/services/search-api'
+
+export function CommandMenu() {
+  const { t } = useI18n()
+  const { setTheme } = useTheme()
+  const { open, setOpen } = useSearch()
+  const navData = sidebarData(t)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState<SearchResults | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+
+  const runCommand = React.useCallback(
+    (command: () => unknown) => {
+      setOpen(false)
+      command()
+    },
+    [setOpen],
+  )
+
+  // Handle search input changes
+  useEffect(() => {
+    if (searchQuery.trim() === '') {
+      setSearchResults(null)
+      return
+    }
+
+    setIsLoading(true)
+
+    // Debounce the search request
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => {
+      searchApi
+        .search(searchQuery, controller.signal)
+        .then(setSearchResults)
+        .catch((error) => {
+          if (error.code !== 'ERR_CANCELED') setSearchResults(null)
+        })
+        .finally(() => setIsLoading(false))
+    }, 300)
+
+    return () => {
+      clearTimeout(timeoutId)
+      controller.abort()
+    }
+  }, [searchQuery])
+
+  // Determine if we're showing search results or navigation
+  const showSearchResults = searchQuery.trim() !== ''
+
+  return (
+    <CommandDialog modal open={open} onOpenChange={setOpen}>
+      <DialogTitle className="sr-only">{t('command_menu_title')}</DialogTitle>
+      <DialogDescription className="sr-only">{t('command_menu_description')}</DialogDescription>
+      <CommandInput
+        placeholder={t('command_menu_search_placeholder')}
+        value={searchQuery}
+        onValueChange={setSearchQuery}
+      />
+      <CommandList>
+        <ScrollArea type="hover" className="h-72 pr-1">
+          {showSearchResults ? (
+            <>
+              {isLoading ? (
+                <CommandItem disabled>
+                  <IconSearch className="mr-2 h-4 w-4 animate-spin" />
+                  {t('common_searching')}
+                </CommandItem>
+              ) : searchResults ? (
+                <>
+                  {searchResults.users.length > 0 && (
+                    <CommandGroup heading={t('users_title')}>
+                      {searchResults.users.map((user) => (
+                        <CommandItem
+                          key={`user-${user.id}`}
+                          value={user.name}
+                          onSelect={() => {
+                            runCommand(() => router.visit(`/admin/users/${user.id}/edit`))
+                          }}
+                        >
+                          <div className="mr-2 flex h-4 w-4 items-center justify-center">
+                            <IconArrowRightDashed className="size-2 text-muted-foreground/80" />
+                          </div>
+                          {user.name}{' '}
+                          <span className="ml-2 text-xs text-muted-foreground">({user.email})</span>
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  )}
+
+                  {searchResults.categories.length > 0 && (
+                    <CommandGroup heading={t('command_menu_categories_heading')}>
+                      {searchResults.categories.map((category) => (
+                        <CommandItem
+                          key={`category-${category.id}`}
+                          value={category.name}
+                          onSelect={() => {
+                            runCommand(() => router.visit(`/admin/categories/${category.id}/edit`))
+                          }}
+                        >
+                          <div className="mr-2 flex h-4 w-4 items-center justify-center">
+                            <IconArrowRightDashed className="size-2 text-muted-foreground/80" />
+                          </div>
+                          {category.name}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  )}
+
+                  {searchResults.tags.length > 0 && (
+                    <CommandGroup heading={t('command_menu_tags_heading')}>
+                      {searchResults.tags.map((tag) => (
+                        <CommandItem
+                          key={`tag-${tag.id}`}
+                          value={tag.name}
+                          onSelect={() => {
+                            runCommand(() => router.visit(`/admin/tags/${tag.id}/edit`))
+                          }}
+                        >
+                          <div className="mr-2 flex h-4 w-4 items-center justify-center">
+                            <IconArrowRightDashed className="size-2 text-muted-foreground/80" />
+                          </div>
+                          {tag.name}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  )}
+
+                  {searchResults.roles.length > 0 && (
+                    <CommandGroup heading={t('roles_title')}>
+                      {searchResults.roles.map((role) => (
+                        <CommandItem
+                          key={`role-${role.id}`}
+                          value={role.name}
+                          onSelect={() => {
+                            runCommand(() => router.visit(`/admin/roles/${role.id}/edit`))
+                          }}
+                        >
+                          <div className="mr-2 flex h-4 w-4 items-center justify-center">
+                            <IconArrowRightDashed className="size-2 text-muted-foreground/80" />
+                          </div>
+                          {role.name}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  )}
+
+                  {searchResults.permissions.length > 0 && (
+                    <CommandGroup heading={t('permissions_title')}>
+                      {searchResults.permissions.map((permission) => (
+                        <CommandItem
+                          key={`permission-${permission.id}`}
+                          value={permission.name}
+                          onSelect={() => {
+                            runCommand(() =>
+                              router.visit(`/admin/permissions/${permission.id}/edit`),
+                            )
+                          }}
+                        >
+                          <div className="mr-2 flex h-4 w-4 items-center justify-center">
+                            <IconArrowRightDashed className="size-2 text-muted-foreground/80" />
+                          </div>
+                          {permission.name}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  )}
+
+                  {Object.values(searchResults).every((arr) => arr.length === 0) && (
+                    <CommandEmpty>{t('common_no_results')}</CommandEmpty>
+                  )}
+                </>
+              ) : (
+                <CommandEmpty>{t('common_no_results')}</CommandEmpty>
+              )}
+            </>
+          ) : (
+            <>
+              <CommandEmpty>{t('common_no_results')}</CommandEmpty>
+              {navData.navGroups.map((group) => (
+                <CommandGroup key={group.title} heading={group.title}>
+                  {group.items.map((navItem, i) => {
+                    if (navItem.url)
+                      return (
+                        <CommandItem
+                          key={`${navItem.url}-${i}`}
+                          value={navItem.title}
+                          onSelect={() => {
+                            runCommand(() => router.visit(navItem.url))
+                          }}
+                        >
+                          <div className="mr-2 flex h-4 w-4 items-center justify-center">
+                            <IconArrowRightDashed className="size-2 text-muted-foreground/80" />
+                          </div>
+                          {navItem.title}
+                        </CommandItem>
+                      )
+
+                    return navItem.items?.map((subItem, i) => (
+                      <CommandItem
+                        key={`${subItem.url}-${i}`}
+                        value={subItem.title}
+                        onSelect={() => {
+                          runCommand(() => router.visit(subItem.url))
+                        }}
+                      >
+                        <div className="mr-2 flex h-4 w-4 items-center justify-center">
+                          <IconArrowRightDashed className="size-2 text-muted-foreground/80" />
+                        </div>
+                        {subItem.title}
+                      </CommandItem>
+                    ))
+                  })}
+                </CommandGroup>
+              ))}
+              <CommandSeparator />
+              <CommandGroup heading={t('settings_appearance_theme_label')}>
+                <CommandItem onSelect={() => runCommand(() => setTheme('light'))}>
+                  <IconSun /> <span>{t('settings_theme_light')}</span>
+                </CommandItem>
+                <CommandItem onSelect={() => runCommand(() => setTheme('dark'))}>
+                  <IconMoon className="scale-90" />
+                  <span>{t('settings_theme_dark')}</span>
+                </CommandItem>
+                <CommandItem onSelect={() => runCommand(() => setTheme('system'))}>
+                  <IconDeviceLaptop />
+                  <span>{t('settings_theme_system')}</span>
+                </CommandItem>
+              </CommandGroup>
+            </>
+          )}
+        </ScrollArea>
+      </CommandList>
+    </CommandDialog>
+  )
+}

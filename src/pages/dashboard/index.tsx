@@ -2,13 +2,21 @@ import { AuthenticatedLayout } from '@/layouts'
 import { Main } from '@/components/layout/main'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useI18n } from '@/i18n/context'
+import { lazy, Suspense, useState } from 'react'
 import { OverviewTab } from './overview-tab'
-import { AnalyticsTab } from './analytics-tab'
-import { ReportsTab } from './reports-tab'
-import { NotificationsTab } from './notifications-tab'
 import type { Product } from '@/pages/products/types'
 import type { Order } from '@/pages/orders/types'
 import type { DashboardStats } from './types'
+
+const AnalyticsTab = lazy(() =>
+  import('./analytics-tab').then(({ AnalyticsTab }) => ({ default: AnalyticsTab })),
+)
+const ReportsTab = lazy(() =>
+  import('./reports-tab').then(({ ReportsTab }) => ({ default: ReportsTab })),
+)
+const NotificationsTab = lazy(() =>
+  import('./notifications-tab').then(({ NotificationsTab }) => ({ default: NotificationsTab })),
+)
 
 interface ProductStats {
   total: number
@@ -38,6 +46,7 @@ export default function Dashboard({
   recentOrders,
 }: DashboardPageProps) {
   const { t } = useI18n()
+  const [activeTab, setActiveTab] = useState('overview')
 
   return (
     <AuthenticatedLayout title={t('dashboard_title')}>
@@ -46,7 +55,12 @@ export default function Dashboard({
           <h1 className="text-2xl font-bold tracking-tight">{t('dashboard_title')}</h1>
         </div>
 
-        <Tabs orientation="vertical" defaultValue="overview" className="space-y-4">
+        <Tabs
+          orientation="vertical"
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="space-y-4"
+        >
           <div className="w-full overflow-x-auto pb-2">
             <TabsList>
               <TabsTrigger value="overview">{t('overview_tab')}</TabsTrigger>
@@ -56,20 +70,38 @@ export default function Dashboard({
             </TabsList>
           </div>
 
-          <TabsContent value="overview" className="space-y-4">
-            <OverviewTab stats={stats} recentOrders={recentOrders} />
-          </TabsContent>
-          <TabsContent value="analytics" className="space-y-4">
-            <AnalyticsTab stats={stats} productStats={productStats} customerStats={customerStats} />
-          </TabsContent>
-          <TabsContent value="reports" className="space-y-4">
-            <ReportsTab restockProducts={restockProducts} recentOrders={recentOrders} />
-          </TabsContent>
-          <TabsContent value="notifications" className="space-y-4">
-            <div className="max-w-2xl">
-              <NotificationsTab />
-            </div>
-          </TabsContent>
+          {activeTab === 'overview' && (
+            <TabsContent value="overview" className="space-y-4" forceMount>
+              <OverviewTab stats={stats} recentOrders={recentOrders} />
+            </TabsContent>
+          )}
+          {activeTab === 'analytics' && (
+            <TabsContent value="analytics" className="space-y-4" forceMount>
+              <Suspense fallback={null}>
+                <AnalyticsTab
+                  stats={stats}
+                  productStats={productStats}
+                  customerStats={customerStats}
+                />
+              </Suspense>
+            </TabsContent>
+          )}
+          {activeTab === 'reports' && (
+            <TabsContent value="reports" className="space-y-4" forceMount>
+              <Suspense fallback={null}>
+                <ReportsTab restockProducts={restockProducts} recentOrders={recentOrders} />
+              </Suspense>
+            </TabsContent>
+          )}
+          {activeTab === 'notifications' && (
+            <TabsContent value="notifications" className="space-y-4" forceMount>
+              <div className="max-w-2xl">
+                <Suspense fallback={null}>
+                  <NotificationsTab />
+                </Suspense>
+              </div>
+            </TabsContent>
+          )}
         </Tabs>
       </Main>
     </AuthenticatedLayout>

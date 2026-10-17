@@ -42,6 +42,20 @@ export default function CreateOrder() {
     queryFn: () => productsApi.all(),
   })
 
+  const productsById = useMemo(() => new Map(products.map((product) => [product.id, product])), [products])
+  const customerOptions = useMemo(
+    () => customers.map((customer) => ({ value: String(customer.id), label: `${customer.name} (${customer.email})` })),
+    [customers],
+  )
+  const productOptions = useMemo(
+    () =>
+      products.map((product) => ({
+        value: String(product.id),
+        label: `${product.name} — ${formatMoney(product.priceAmountMinorUnits, product.priceCurrency)} (${t('products_stock_in_stock', { count: product.stockQuantity })})`,
+      })),
+    [products, t],
+  )
+
   const addLine = () => {
     if (products.length === 0) return
     setLines((prev) => [...prev, { productId: products[0].id, quantity: 1 }])
@@ -59,13 +73,13 @@ export default function CreateOrder() {
     let total = 0
     let currency = 'USD'
     for (const line of lines) {
-      const product = products.find((p) => p.id === line.productId)
+      const product = productsById.get(line.productId)
       if (!product) continue
       total += product.priceAmountMinorUnits * line.quantity
       currency = product.priceCurrency
     }
     return { total, currency }
-  }, [lines, products])
+  }, [lines, productsById])
 
   const onSubmit = async () => {
     if (!customerId) {
@@ -149,10 +163,7 @@ export default function CreateOrder() {
                   placeholder={t('order_field_customer_placeholder')}
                   searchPlaceholder={t('order_field_customer_search_placeholder')}
                   emptyText={t('order_field_customer_empty')}
-                  options={customers.map((c) => ({
-                    value: String(c.id),
-                    label: `${c.name} (${c.email})`,
-                  }))}
+                  options={customerOptions}
                 />
               </div>
 
@@ -175,7 +186,7 @@ export default function CreateOrder() {
                 ) : (
                   <div className="space-y-2">
                     {lines.map((line, index) => {
-                      const product = products.find((p) => p.id === line.productId)
+                      const product = productsById.get(line.productId)
                       return (
                         <div key={index} className="flex items-center gap-2">
                           <Combobox
@@ -184,10 +195,7 @@ export default function CreateOrder() {
                             onChange={(value) => updateLine(index, { productId: Number(value) })}
                             searchPlaceholder={t('order_field_product_search_placeholder')}
                             emptyText={t('order_field_product_empty')}
-                            options={products.map((p) => ({
-                              value: String(p.id),
-                              label: `${p.name} — ${formatMoney(p.priceAmountMinorUnits, p.priceCurrency)} (${t('products_stock_in_stock', { count: p.stockQuantity })})`,
-                            }))}
+                            options={productOptions}
                           />
                           <Input
                             type="number"

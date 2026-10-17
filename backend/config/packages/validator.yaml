@@ -1,0 +1,17 @@
+framework:
+    validation:
+        # Enables validator auto-mapping support.
+        # For instance, basic validation constraints will be inferred from Doctrine's metadata.
+        #auto_mapping:
+        #    App\Entity\: []
+
+        # Constraints for Application Command DTOs, kept out of the Application
+        # layer as external YAML mapping instead of #[Assert\...] attributes.
+        mapping:
+            paths:
+                - '%kernel.project_dir%/config/validator'
+
+when@test:
+    framework:
+        validation:
+            not_compromised_password: false

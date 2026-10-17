@@ -20,22 +20,28 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-          cache-dependency-path: pnpm-lock.yaml
+          cache-dependency-path: frontend/pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+        working-directory: frontend
 
       - name: Type check
         run: pnpm exec tsc --noEmit
+        working-directory: frontend
 
       - name: Lint
         run: pnpm run lint
+        working-directory: frontend
 
       - name: Format check
         run: pnpm run format:check
+        working-directory: frontend
 
       - name: Test
         run: pnpm test -- --run
+        working-directory: frontend
 
       - name: Build
         run: pnpm run build
+        working-directory: frontend

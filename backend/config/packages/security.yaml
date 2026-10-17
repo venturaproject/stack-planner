@@ -1,0 +1,39 @@
+security:
+    password_hashers:
+        App\Infrastructure\Security\Symfony\SecurityUser: 'auto'
+
+    providers:
+        app_user_provider:
+            id: App\Infrastructure\Security\Symfony\DomainUserProvider
+
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+
+        public_internal:
+            pattern: ^/api/auth/(login|refresh|activate|forgot-password|reset-password|csrf)$
+            stateless: true
+            security: false
+
+        public_external:
+            pattern: ^/api/v1/(docs|contexts|\.well-known|auth/)
+            stateless: true
+            security: false
+
+        api_v1:
+            pattern: ^/api/v1
+            stateless: true
+            custom_authenticators:
+                - App\Infrastructure\Http\Security\ApiClientTokenAuthenticator
+
+        api:
+            pattern: ^/api
+            stateless: true
+            jwt: ~
+
+    access_control:
+        - { path: ^/api/auth/(login|refresh|activate|forgot-password|reset-password|csrf)$, roles: PUBLIC_ACCESS }
+        - { path: ^/api/health, roles: PUBLIC_ACCESS }
+        - { path: ^/api/v1/(docs|contexts|\.well-known|auth/), roles: PUBLIC_ACCESS }
+        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }

@@ -1,0 +1,106 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${POSTGRES_PORT_EXTERNAL:-5434}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: .
+      dockerfile: infrastructure/backend/Dockerfile
+    environment: &backend-env
+      APP_ENV: prod
+      APP_SECRET: ${APP_SECRET}
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      DATABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?serverVersion=16&charset=utf8"
+      MESSENGER_TRANSPORT_DSN: "doctrine://default?auto_setup=0"
+      MAILER_DSN: ${MAILER_DSN:?set a real transactional-email provider DSN in prod — see https://symfony.com/doc/current/mailer.html#using-built-in-transports}
+      MAILER_FROM_ADDRESS: ${MAILER_FROM_ADDRESS}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_SECRET_KEY: /run/secrets/jwt_private_key
+      JWT_PUBLIC_KEY: /run/secrets/jwt_public_key
+      JWT_ACCESS_TTL_SECS: ${JWT_ACCESS_TTL_SECS:-900}
+      JWT_REFRESH_TTL_SECS: ${JWT_REFRESH_TTL_SECS:-604800}
+      COOKIE_SECURE: ${COOKIE_SECURE:-true}
+      COOKIE_SAME_SITE: ${COOKIE_SAME_SITE:-Lax}
+      MEDIA_DIR: /app/var/media
+      # Without these, the container falls back to backend/.env's committed dev
+      # placeholders (localhost) — silently, since they're all optional %env(...)%
+      # reads, not missing-env-var errors. That breaks real things: APP_URL is
+      # the base URL activation/password-reset emails link to (config/services/auth.php),
+      # CORS_ALLOW_ORIGIN is what the real frontend origin must match to call this
+      # API at all (nelmio_cors.yaml), DEFAULT_URI is the base for URLs generated
+      # outside an HTTP request (CLI/worker context).
+      APP_URL: ${APP_URL:?set the app's real public URL in prod, e.g. https://myapp.com — used as the JWT issuer and in activation/password-reset email links}
+      CORS_ALLOW_ORIGIN: ${CORS_ALLOW_ORIGIN:?set a regex matching the real frontend origin(s) in prod, e.g. ^https://myapp\.com$}
+      DEFAULT_URI: ${DEFAULT_URI:-${APP_URL}}
+      TOTP_ISSUER: ${TOTP_ISSUER:-Planner}
+    volumes: &backend-volumes
+      - media:/app/var/media
+    secrets: &backend-secrets
+      - jwt_private_key
+      - jwt_public_key
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "nc", "-z", "127.0.0.1", "9000"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+  worker:
+    build:
+      context: .
+      dockerfile: infrastructure/backend/Dockerfile
+    entrypoint: ["/entrypoint.worker.sh"]
+    environment: *backend-env
+    volumes: *backend-volumes
+    secrets: *backend-secrets
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  # No dedicated frontend container in prod: the React SPA is compiled to a
+  # static build inside nginx's own multi-stage Dockerfile (see
+  # infrastructure/nginx/Dockerfile) and served directly by nginx — no Vite
+  # dev server / HMR websocket / `unsafe-eval` needed at runtime.
+  nginx:
+    build:
+      context: .
+      dockerfile: infrastructure/nginx/Dockerfile
+      args:
+        VITE_BACKEND_URL: ${VITE_BACKEND_URL}
+        VITE_PUBLIC_API_URL: ${VITE_PUBLIC_API_URL}
+    ports:
+      - "${NGINX_PORT:-80}:80"
+    volumes:
+      - media:/srv/media:ro
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
+  media:
+
+secrets:
+  jwt_private_key:
+    file: ${JWT_PRIVATE_KEY_PATH:?set the path to the private JWT key}
+  jwt_public_key:
+    file: ${JWT_PUBLIC_KEY_PATH:?set the path to the public JWT key}

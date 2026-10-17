@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { env } from '@/config'
 import type { AuthUser } from './auth'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -76,16 +77,25 @@ interface CookieSessionAdapterConfig {
 
 // Bare axios instance used only by the adapter — no interceptors, no cycles.
 const _http = axios.create({
+  baseURL: env.PUBLIC_API_URL,
   withCredentials: true,
   headers: { 'Content-Type': 'application/json' },
   timeout: 20_000,
 })
 
+let csrfToken = ''
+
+const updateCsrfToken = (data: unknown): void => {
+  if (typeof data === 'object' && data !== null && 'csrfToken' in data && typeof data.csrfToken === 'string') {
+    csrfToken = data.csrfToken
+  }
+}
+
 // Attach the double-submit CSRF token (see backend's AuthCookieFactory/CsrfProtectionListener)
 // to mutating requests so logout/refresh POSTs are accepted.
 _http.interceptors.request.use((config) => {
   if (config.method && ['post', 'put', 'patch', 'delete'].includes(config.method)) {
-    const token = document.cookie
+    const token = csrfToken || document.cookie
       .split('; ')
       .find((r) => r.startsWith('csrf_token='))
       ?.split('=')[1]
@@ -107,7 +117,7 @@ export class CookieSessionAuthAdapter implements AuthAdapter {
   }
 
   getRequestHeaders(): Record<string, string> {
-    const token = document.cookie
+    const token = csrfToken || document.cookie
       .split('; ')
       .find((row) => row.startsWith('csrf_token='))
       ?.split('=')[1]
@@ -143,7 +153,10 @@ export class CookieSessionAuthAdapter implements AuthAdapter {
   }
 
   async login(credentials: Record<string, unknown>): Promise<SessionData> {
-    if (this.cfg.csrfUrl) await _http.get(this.cfg.csrfUrl)
+    if (this.cfg.csrfUrl) {
+      const { data } = await _http.get(this.cfg.csrfUrl)
+      updateCsrfToken(data)
+    }
     const payload = {
       email: credentials.email ?? credentials.login,
       password: credentials.password,
@@ -153,6 +166,7 @@ export class CookieSessionAuthAdapter implements AuthAdapter {
     let data: Record<string, unknown>
     try {
       ;({ data } = await _http.post(this.cfg.loginUrl, payload))
+      updateCsrfToken(data)
     } catch (error) {
       if (
         axios.isAxiosError(error) &&
@@ -244,7 +258,8 @@ export class CookieSessionAuthAdapter implements AuthAdapter {
     if (this._refreshPromise) return this._refreshPromise
     this._refreshPromise = (async () => {
       try {
-        await _http.post(this.cfg.refreshUrl)
+        const { data } = await _http.post(this.cfg.refreshUrl)
+        updateCsrfToken(data)
         return true
       } catch {
         return false
@@ -296,6 +311,7 @@ let _adapter: AuthAdapter = new CookieSessionAuthAdapter({
   stopImpersonatingUrl: '/api/auth/stop-impersonating',
   forgotPasswordUrl: '/api/auth/forgot-password',
   resetPasswordUrl: '/api/auth/reset-password',
+  csrfUrl: '/api/auth/csrf',
 })
 
 export const getAuthAdapter = (): AuthAdapter => _adapter

@@ -1,0 +1,30 @@
+doctrine:
+    dbal:
+        url: '%env(resolve:DATABASE_URL)%'
+        profiling_collect_backtrace: '%kernel.debug%'
+        # outbox_events and sent_emails (see Infrastructure/Outbox) are written/read
+        # through raw DBAL SQL, not mapped entities — exclude them so
+        # schema:validate/migrations:diff don't treat them as drift to be dropped.
+        # audit_logs_chain_sequence_seq backs AuditLog::$chainSequence's DEFAULT
+        # (see that mapping file) — Doctrine's schema comparator has no concept of
+        # a free-standing sequence tied to a column via a raw DEFAULT expression
+        # (only ones wired through GENERATOR_TYPE_SEQUENCE for a primary key), so
+        # without this it flags the sequence itself as drift to drop on every run.
+        schema_filter: '~^(?!outbox_events$|sent_emails$|audit_logs_chain_sequence_seq$).*$~'
+
+    orm:
+        validate_xml_mapping: true
+        naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
+        auto_mapping: true
+        mappings:
+            App:
+                type: php
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Infrastructure/Persistence/Doctrine/Mapping'
+                prefix: 'App\Domain'
+                alias: App
+
+doctrine_migrations:
+    migrations_paths:
+        'App\Migrations': '%kernel.project_dir%/migrations'
+    enable_profiler: false

@@ -162,24 +162,6 @@ export default function CustomersIndex({
               <p className="text-muted-foreground">{t('customers_page_description')}</p>
             </div>
 
-            <BulkSelectionBar
-              visible={bulk.selectedIds.size > 0}
-              selectedCount={bulk.selectedCount}
-              total={customers.total}
-              allPageSelected={bulk.allPageSelected}
-              selectAllRecords={bulk.selectAllRecords}
-              onSelectAllRecords={() => bulk.setSelectAllRecords(true)}
-              onSelectPageOnly={() => bulk.setSelectAllRecords(false)}
-              onClearSelection={bulk.clearSelection}
-              countLabel={countLabel}
-              selectAllLabel={t('customers_select_all_label', { total: customers.total })}
-              actions={
-                <DropdownMenuItem onClick={handleExport}>
-                  <Download className="mr-2 h-4 w-4" />
-                  {t('common_export_excel')}
-                </DropdownMenuItem>
-              }
-            />
             <Button onClick={() => navigate(pathFor('admin.customers.create'))} className="w-fit">
               <Plus className="mr-2 h-4 w-4" />
               {t('customers_add_button')}
@@ -270,6 +252,25 @@ export default function CustomersIndex({
                 )}
               </div>
             )}
+
+            <BulkSelectionBar
+              visible={bulk.selectedIds.size > 0}
+              selectedCount={bulk.selectedCount}
+              total={customers.total}
+              allPageSelected={bulk.allPageSelected}
+              selectAllRecords={bulk.selectAllRecords}
+              onSelectAllRecords={() => bulk.setSelectAllRecords(true)}
+              onSelectPageOnly={() => bulk.setSelectAllRecords(false)}
+              onClearSelection={bulk.clearSelection}
+              countLabel={countLabel}
+              selectAllLabel={t('customers_select_all_label', { total: customers.total })}
+              actions={
+                <DropdownMenuItem onClick={handleExport}>
+                  <Download className="mr-2 h-4 w-4" />
+                  {t('common_export_excel')}
+                </DropdownMenuItem>
+              }
+            />
 
             <TabsContent value={currentTab}>
               <Card>

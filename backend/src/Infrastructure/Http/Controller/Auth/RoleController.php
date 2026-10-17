@@ -1,0 +1,76 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Infrastructure\Http\Controller\Auth;
+
+use App\Application\Auth\Command\CreateRoleCommand;
+use App\Application\Auth\Command\DeleteRoleCommand;
+use App\Application\Auth\Command\UpdateRoleCommand;
+use App\Application\Auth\Query\GetRoleQuery;
+use App\Application\Auth\Query\ListRolesQuery;
+use App\Application\Shared\Bus\CommandBusInterface;
+use App\Application\Shared\Bus\QueryBusInterface;
+use App\Infrastructure\Http\Validation\ReadsJsonBody;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
+
+#[Route('/api/roles')]
+#[IsGranted('ROLE_ADMIN')]
+class RoleController extends AbstractController
+{
+    use ReadsJsonBody;
+
+    public function __construct(
+        private readonly CommandBusInterface $commandBus,
+        private readonly QueryBusInterface $queryBus,
+    ) {
+    }
+
+    #[Route('', methods: ['GET'])]
+    public function list(Request $request): JsonResponse
+    {
+        return $this->json($this->queryBus->ask(new ListRolesQuery(
+            page: max(1, (int) $request->query->get('page', 1)),
+            size: max(1, min(100, (int) $request->query->get('size', 20))),
+        )));
+    }
+
+    #[Route('/{id}', methods: ['GET'])]
+    public function getById(string $id): JsonResponse
+    {
+        return $this->json($this->queryBus->ask(new GetRoleQuery($id)));
+    }
+
+    #[Route('', methods: ['POST'])]
+    public function create(Request $request): JsonResponse
+    {
+        $data = $this->decodeJsonBody($request);
+
+        return $this->json($this->commandBus->dispatch(
+            new CreateRoleCommand($this->stringField($data, 'name'), $this->optionalStringField($data, 'description'), $this->stringListField($data, 'permissions'))
+        ), Response::HTTP_CREATED);
+    }
+
+    #[Route('/{id}', methods: ['PATCH'])]
+    public function update(string $id, Request $request): JsonResponse
+    {
+        $data = $this->decodeJsonBody($request);
+
+        return $this->json($this->commandBus->dispatch(
+            new UpdateRoleCommand($id, $this->stringField($data, 'name'), $this->optionalStringField($data, 'description'), $this->stringListField($data, 'permissions'))
+        ));
+    }
+
+    #[Route('/{id}', methods: ['DELETE'])]
+    public function delete(string $id): JsonResponse
+    {
+        $this->commandBus->dispatch(new DeleteRoleCommand($id));
+
+        return $this->json(null, Response::HTTP_NO_CONTENT);
+    }
+}

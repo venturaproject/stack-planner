@@ -1,0 +1,24 @@
+FROM php:8.4-fpm-alpine
+
+RUN apk add --no-cache \
+    bash git curl postgresql-client supervisor \
+    libpq-dev libzip-dev icu-dev \
+    linux-headers $PHPIZE_DEPS \
+    && docker-php-ext-install pdo pdo_pgsql zip intl opcache \
+    && pecl install apcu \
+    && docker-php-ext-enable apcu \
+    && apk del linux-headers $PHPIZE_DEPS
+
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+COPY infrastructure/backend/opcache-dev.ini /usr/local/etc/php/conf.d/zz-opcache-dev.ini
+
+WORKDIR /app
+
+COPY infrastructure/backend/entrypoint.dev.sh /entrypoint.sh
+COPY infrastructure/backend/entrypoint.worker.dev.sh /entrypoint.worker.sh
+COPY infrastructure/backend/supervisord.conf /etc/supervisor/supervisord.conf
+RUN chmod +x /entrypoint.sh /entrypoint.worker.sh
+
+EXPOSE 9000
+
+ENTRYPOINT ["/entrypoint.sh"]

@@ -13,6 +13,8 @@ import { useAuthStore } from '@/lib/auth'
 import { setNavigate } from '@/lib/router-singleton'
 import NotFoundError from '@/pages/errors/not-found-error'
 import RouteError from '@/pages/errors/route-error'
+import ForbiddenError from '@/pages/errors/forbidden'
+import { FULL_ACCESS_ROLES } from '@/config/env'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -69,7 +71,7 @@ function HydrationSpinner() {
 
 function makePrivateGuard(loginPath: string, requiredStep?: RouterConfig['requiredStep']) {
   return function PrivateGuard() {
-    const { initialized, isAuthenticated, hydrate } = useAuthStore()
+    const { initialized, isAuthenticated, hydrate, permissions, roles } = useAuthStore()
     const location = useLocation()
     useEffect(() => {
       hydrate()
@@ -79,6 +81,13 @@ function makePrivateGuard(loginPath: string, requiredStep?: RouterConfig['requir
     if (requiredStep && requiredStep.isIncomplete() && location.pathname !== requiredStep.path) {
       return <Navigate to={requiredStep.path} replace />
     }
+    const fullAccess = roles.some((role) => FULL_ACCESS_ROLES.some((fullRole) => fullRole.toLowerCase() === role.toLowerCase()))
+    const match = location.pathname.match(/^\/admin\/(users|roles)(?:\/|$)/)
+    if (match && !fullAccess) {
+      const action = location.pathname.endsWith('/create') || location.pathname.endsWith('/edit') ? 'write' : 'read'
+      if (!permissions.includes(`${match[1]}:${action}`)) return <ForbiddenError />
+    }
+    if (/^\/admin\/(permissions|security)/.test(location.pathname) && !fullAccess) return <ForbiddenError />
     return (
       <>
         <NavigateSetter />

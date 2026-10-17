@@ -1,2 +1,12 @@
-node_modules
-dist
+**/.git/
+.github/
+.claude/
+backend/.env.local
+backend/.env.*.local
+backend/config/jwt/*.pem
+backend/var/
+backend/vendor/
+**/node_modules/
+**/dist/
+**/.pnpm-store/
+**/.DS_Store

@@ -6,7 +6,7 @@ import { useNotifications } from '@/hooks/use-notifications'
 
 const NotificationButton = () => {
   const [isOpen, setIsOpen] = useState(false)
-  const { unreadCount } = useNotifications()
+  const { unreadCount } = useNotifications(isOpen)
 
   return (
     <>
@@ -16,7 +16,7 @@ const NotificationButton = () => {
           <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-red-500" />
         )}
       </Button>
-      <NotificationSlideout isOpen={isOpen} onClose={() => setIsOpen(false)} />
+      {isOpen && <NotificationSlideout isOpen onClose={() => setIsOpen(false)} />}
     </>
   )
 }

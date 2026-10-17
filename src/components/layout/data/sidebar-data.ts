@@ -13,15 +13,15 @@ import {
   IconShoppingCart,
 } from '@tabler/icons-react'
 import { type SidebarData } from '../types'
-import TradivelLogo from '../tradivel-logo'
+import BrandLogo from '../brand-logo'
 
 type TFunc = (key: string, params?: Record<string, string | number>) => string
 
 export const sidebarData = (t: TFunc): SidebarData => ({
   teams: [
     {
-      name: 'Tradivel',
-      logo: TradivelLogo,
+      name: 'Boilerplate',
+      logo: BrandLogo,
       plan: 'E-commerce Platform',
     },
   ],

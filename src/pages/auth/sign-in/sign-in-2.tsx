@@ -1,4 +1,4 @@
-const TradivelLogo = '/logo-tradivel-compact-light.svg'
+const BrandLogo = '/logo-compact-light.svg'
 import { useState } from 'react'
 import { AlertCircle } from 'lucide-react'
 import { DocumentTitle } from '@/components/document-title'
@@ -29,11 +29,11 @@ export default function SignIn2({
           <div className="relative z-20 flex items-center text-lg font-medium"></div>
 
           <img
-            src={TradivelLogo}
+            src={BrandLogo}
             className="relative m-auto"
             width={301}
             height={60}
-            alt="Tradivel"
+            alt="Boilerplate"
           />
 
           <div className="relative z-20 mt-auto">
@@ -47,7 +47,7 @@ export default function SignIn2({
         <div className="w-full lg:p-8">
           <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
             <div className="flex flex-col items-center space-y-2 text-center lg:items-start lg:text-left">
-              <img src={TradivelLogo} className="mb-4 h-10 w-auto lg:hidden" alt="Tradivel" />
+              <img src={BrandLogo} className="mb-4 h-10 w-auto lg:hidden" alt="Boilerplate" />
               <h1 className="text-2xl font-semibold tracking-tight">
                 {t('auth_login_page_title')}
               </h1>

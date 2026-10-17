@@ -1,0 +1,10 @@
+parameters:
+    level: 10
+    paths:
+        - src
+    excludePaths:
+        - src/Infrastructure/Persistence/Doctrine/Mapping
+    symfony:
+        containerXmlPath: var/cache/dev/App_KernelDevDebugContainer.xml
+    doctrine:
+        objectManagerLoader: tests/object-manager.php

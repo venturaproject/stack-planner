@@ -1,0 +1,36 @@
+framework:
+    rate_limiter:
+        api_limiter:
+            policy: 'fixed_window'
+            limit: 1000
+            interval: '1 minute'
+
+        login_limiter:
+            policy: 'fixed_window'
+            limit: 1000
+            interval: '1 minute'
+
+        activation_limiter:
+            policy: 'fixed_window'
+            limit: 1000
+            interval: '1 minute'
+
+        totp_limiter:
+            policy: 'fixed_window'
+            limit: 1000
+            interval: '1 minute'
+
+        forgot_password_limiter:
+            policy: 'fixed_window'
+            limit: 1000
+            interval: '1 minute'
+
+        reset_password_limiter:
+            policy: 'fixed_window'
+            limit: 1000
+            interval: '1 minute'
+
+        refresh_token_limiter:
+            policy: 'fixed_window'
+            limit: 1000
+            interval: '1 minute'

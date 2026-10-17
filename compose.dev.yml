@@ -1,0 +1,112 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${POSTGRES_PORT_EXTERNAL:-5434}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: .
+      dockerfile: infrastructure/backend/Dockerfile.dev
+    environment: &backend-env
+      APP_ENV: dev
+      APP_SECRET: ${APP_SECRET}
+      APP_DEBUG: "1"
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      # DATABASE_URL is intentionally NOT set here: it must come from backend/.env(.test)
+      # so Symfony's own env cascade can switch databases based on APP_ENV. A hardcoded
+      # value here would win over .env.test as a real process env var, silently pointing
+      # `APP_ENV=test` runs (phpunit) at the dev database instead of boilerplate_ddd_test.
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_SECRET_KEY: /app/config/jwt/private.pem
+      JWT_PUBLIC_KEY: /app/config/jwt/public.pem
+      JWT_ACCESS_TTL_SECS: ${JWT_ACCESS_TTL_SECS:-900}
+      JWT_REFRESH_TTL_SECS: ${JWT_REFRESH_TTL_SECS:-604800}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      COOKIE_SAME_SITE: ${COOKIE_SAME_SITE:-Lax}
+      MEDIA_DIR: /app/var/media
+    volumes: &backend-volumes
+      - ./backend:/app
+      - composer_cache:/root/.composer
+      - ./backend/var/media:/app/var/media
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      # php-fpm readiness is independent from migrations and seed data, which are
+      # explicit operations (`make migrate`, `make seed`) rather than web startup work.
+      test: ["CMD", "nc", "-z", "127.0.0.1", "9000"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+  worker:
+    build:
+      context: .
+      dockerfile: infrastructure/backend/Dockerfile.dev
+    entrypoint: ["/entrypoint.worker.sh"]
+    environment: *backend-env
+    volumes: *backend-volumes
+    depends_on:
+      backend:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      # Web UI to inspect emails sent by the app/worker during local dev — the
+      # SMTP port (1025) stays internal to the compose network.
+      - "${MAILPIT_UI_PORT:-8025}:8025"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ../infrastructure/frontend/Dockerfile.dev
+    command: sh -c "pnpm install --frozen-lockfile && pnpm run dev --host"
+    environment:
+      CI: "true"
+      VITE_BACKEND_URL: ${VITE_BACKEND_URL}
+      VITE_PUBLIC_API_URL: ""
+      VITE_FULL_ACCESS_ROLES: ${VITE_FULL_ACCESS_ROLES:-ADMIN}
+      VITE_APP_NAME: ${VITE_APP_NAME:-Planner}
+    volumes:
+      - ./frontend:/app
+      - frontend_modules:/app/node_modules
+    depends_on:
+      - backend
+
+  nginx:
+    build:
+      context: ./infrastructure/nginx
+      dockerfile: Dockerfile.dev
+    ports:
+      - "${NGINX_PORT:-80}:80"
+    volumes:
+      - ./backend/var/media:/srv/media:ro
+      - ./backend/public/bundles:/app/public/bundles:ro
+    depends_on:
+      - frontend
+      - backend
+
+volumes:
+  pgdata:
+  composer_cache:
+  frontend_modules:
