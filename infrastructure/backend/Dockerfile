@@ -13,7 +13,7 @@ COPY backend/ ./
 RUN composer dump-autoload --no-dev --optimize --classmap-authoritative --no-scripts
 
 # Stage 2: runtime php-fpm
-FROM php:8.4-fpm-alpine
+FROM php:8.5-fpm-alpine
 
 RUN apk add --no-cache \
     postgresql-client supervisor \

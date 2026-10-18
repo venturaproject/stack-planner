@@ -29,6 +29,8 @@ final class UploadedImageValidator
             return null;
         }
 
-        return self::MIME_EXTENSIONS[$file->getMimeType()] ?? null;
+        $mimeType = $file->getMimeType();
+
+        return null === $mimeType ? null : (self::MIME_EXTENSIONS[$mimeType] ?? null);
     }
 }

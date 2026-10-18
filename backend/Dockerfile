@@ -11,13 +11,13 @@ RUN composer install \
     --ignore-platform-reqs
 
 # Stage 2: runtime php-fpm
-FROM php:8.4-fpm-alpine
+FROM php:8.5-fpm-alpine
 
 RUN apk add --no-cache \
     postgresql-client supervisor \
     libpq-dev libzip-dev icu-dev \
     linux-headers $PHPIZE_DEPS \
-    && docker-php-ext-install pdo pdo_pgsql zip intl opcache \
+    && docker-php-ext-install pdo pdo_pgsql zip intl \
     && pecl install apcu \
     && docker-php-ext-enable apcu \
     && apk del linux-headers $PHPIZE_DEPS

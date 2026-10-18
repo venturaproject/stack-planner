@@ -18,7 +18,7 @@ Symfony DDD/CQRS backend. It does not use Laravel, Blade, or Inertia.
 
 ## Stack
 
-- Symfony 7.4 LTS / PHP 8.4, Doctrine ORM, and PostgreSQL 18.
+- Symfony 7.4 LTS / PHP 8.5, Doctrine ORM, and PostgreSQL 18.
 - Internal `/api/*` API with JWT in httpOnly cookies and double-submit CSRF protection.
 - External `/api/v1/*` API with API Platform 5, Bearer tokens, and resource scopes.
 - React 19, TypeScript, Vite, React Router, TanStack Query, and shadcn/ui.
