@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:16-alpine
+    image: postgres:18-alpine
     environment:
       POSTGRES_DB: boilerplate_ddd_test
       POSTGRES_USER: postgres
@@ -26,7 +26,7 @@ services:
       APP_ENV: test
       APP_SECRET: test-secret-32-characters-minimum
       COOKIE_SAME_SITE: strict
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/boilerplate_ddd_test?serverVersion=16&charset=utf8
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/boilerplate_ddd_test?serverVersion=18&charset=utf8
       JWT_SECRET: test-secret-not-for-production
       JWT_SECRET_KEY: /tmp/jwt/private.pem
       JWT_PUBLIC_KEY: /tmp/jwt/public.pem

@@ -49,7 +49,7 @@ RUN touch .env \
         COOKIE_SECURE=true \
         COOKIE_SAME_SITE=Strict \
         CORS_ALLOW_ORIGIN='^https?://localhost(:[0-9]+)?$' \
-        DATABASE_URL='postgresql://planner:planner@127.0.0.1:5432/planner?serverVersion=16&charset=utf8' \
+        DATABASE_URL='postgresql://planner:planner@127.0.0.1:5432/planner?serverVersion=18&charset=utf8' \
         DEFAULT_URI=https://planner.invalid \
         JWT_ACCESS_TTL_SECS=900 \
         JWT_PUBLIC_KEY=/tmp/jwt/public.pem \

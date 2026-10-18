@@ -14,11 +14,11 @@ jobs:
         php: ["8.4"]
     env:
       APP_ENV: test
-      DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/boilerplate_ddd_test?serverVersion=16&charset=utf8"
+      DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/boilerplate_ddd_test?serverVersion=18&charset=utf8"
       JWT_SECRET: ci-only-secret-not-used-in-production-32chars
     services:
       postgres:
-        image: postgres:16-alpine
+        image: postgres:18-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres

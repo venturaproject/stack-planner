@@ -18,7 +18,7 @@ Symfony DDD/CQRS backend. It does not use Laravel, Blade, or Inertia.
 
 ## Stack
 
-- Symfony 7.4 LTS / PHP 8.4, Doctrine ORM, and PostgreSQL 16.
+- Symfony 7.4 LTS / PHP 8.4, Doctrine ORM, and PostgreSQL 18.
 - Internal `/api/*` API with JWT in httpOnly cookies and double-submit CSRF protection.
 - External `/api/v1/*` API with API Platform 5, Bearer tokens, and resource scopes.
 - React 19, TypeScript, Vite, React Router, TanStack Query, and shadcn/ui.
@@ -48,6 +48,13 @@ the application. Run `make seed` to reload the seed data.
 `make seed-force` rebuilds the DEMO project and its issues, epics, sprints, comments, checklist,
 worklogs, and activity. `make down` stops the services and preserves the database. The backend
 entrypoint runs migrations at startup; run `make migrate` to apply them manually.
+
+PostgreSQL 18 stores its data under a version-specific directory in the Docker volume. The Compose
+configuration uses a new `pgdata18` volume and leaves any PostgreSQL 16 volume untouched. To keep
+existing data, back it up and restore it into PostgreSQL 18 with `pg_dump`/`pg_restore` (or use
+`pg_upgrade`); never attach a PostgreSQL 16 data directory directly to a PostgreSQL 18 container.
+The application already generates UUIDv7 identifiers through Symfony; PostgreSQL 18 also provides
+native `uuidv7()` for future database-generated UUID defaults.
 
 ## Planner Domain
 
