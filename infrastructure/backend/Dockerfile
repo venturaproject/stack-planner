@@ -19,7 +19,7 @@ RUN apk add --no-cache \
     postgresql-client supervisor \
     libpq-dev libzip-dev icu-dev \
     linux-headers $PHPIZE_DEPS \
-    && docker-php-ext-install pdo pdo_pgsql zip intl opcache \
+    && docker-php-ext-install pdo pdo_pgsql zip intl \
     && pecl install apcu \
     && docker-php-ext-enable apcu \
     && apk del linux-headers $PHPIZE_DEPS

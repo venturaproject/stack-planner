@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php: ["8.4"]
+        php: ["8.4", "8.5"]
     env:
       APP_ENV: test
       DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/boilerplate_ddd_test?serverVersion=18&charset=utf8"
