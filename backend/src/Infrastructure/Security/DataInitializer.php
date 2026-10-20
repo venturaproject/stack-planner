@@ -39,7 +39,7 @@ class DataInitializer extends Command
         private readonly EntityManagerInterface $em,
         private readonly PasswordHasherInterface $hasher,
         private readonly FileStorageInterface $storage,
-        #[Autowire('%kernel.environment%')]
+        #[Autowire(param: 'kernel.environment')]
         private readonly string $environment,
         #[Autowire('%kernel.project_dir%/fixtures/demo/attachments/DEMO-4/lKs5G8TylIB9d9THDVWENHddoKEKXLEoOhj2mbWh.png')]
         private readonly string $demoAttachmentFixture,
