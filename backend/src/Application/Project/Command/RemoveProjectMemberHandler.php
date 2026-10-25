@@ -8,9 +8,7 @@ use App\Domain\Project\Exception\CannotRemoveLastProjectOwnerException;
 use App\Domain\Project\Exception\ProjectNotFoundException;
 use App\Domain\Project\Repository\ProjectMemberRepositoryInterface;
 use App\Domain\Project\Repository\ProjectRepositoryInterface;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(bus: 'command.bus', method: 'handle')]
 final class RemoveProjectMemberHandler
 {
     public function __construct(

@@ -9,9 +9,7 @@ use App\Domain\Auth\Entity\Role;
 use App\Domain\Auth\Exception\RoleAlreadyExistsException;
 use App\Domain\Auth\Repository\PermissionRepositoryInterface;
 use App\Domain\Auth\Repository\RoleRepositoryInterface;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(bus: 'command.bus', method: 'handle')]
 final class CreateRoleHandler
 {
     public function __construct(

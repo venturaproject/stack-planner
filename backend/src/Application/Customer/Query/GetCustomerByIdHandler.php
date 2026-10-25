@@ -6,9 +6,7 @@ namespace App\Application\Customer\Query;
 
 use App\Application\Customer\DTO\CustomerResponse;
 use App\Domain\Customer\Exception\CustomerNotFoundException;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(bus: 'query.bus', method: 'handle')]
 final class GetCustomerByIdHandler
 {
     public function __construct(private readonly CustomerReadModelInterface $customers)

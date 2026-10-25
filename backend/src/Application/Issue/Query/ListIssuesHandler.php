@@ -4,16 +4,13 @@ declare(strict_types=1);
 
 namespace App\Application\Issue\Query;
 
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
-
-#[AsMessageHandler(bus: 'query.bus', method: 'handle')]
 final class ListIssuesHandler
 {
     public function __construct(private readonly IssueReadModelInterface $issues)
     {
     }
 
-    /** @return array{data: list<array<string, mixed>>} */
+    /** @return array{data: list<array{id: int|null, projectId: int, key: string, title: string, status: string, priority: string, dueAt: string|null, startAt: string|null, epicId: int|null, sprintId: int|null, type: string, storyPoints: int|null, reporterName: string, assigneeNames: list<string>, createdAt: string, description: string|null}>} */
     public function handle(ListIssuesQuery $query): array
     {
         $data = [];

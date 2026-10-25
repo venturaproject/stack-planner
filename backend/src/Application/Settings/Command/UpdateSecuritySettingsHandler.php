@@ -7,9 +7,7 @@ namespace App\Application\Settings\Command;
 use App\Application\Settings\DTO\SecuritySettingsResponse;
 use App\Domain\Settings\Entity\SecuritySettings;
 use App\Domain\Settings\Repository\SecuritySettingsRepositoryInterface;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(bus: 'command.bus', method: 'handle')]
 final class UpdateSecuritySettingsHandler
 {
     public function __construct(

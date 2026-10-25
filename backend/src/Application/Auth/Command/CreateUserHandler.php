@@ -11,9 +11,7 @@ use App\Domain\Auth\Exception\EmailAlreadyInUseException;
 use App\Domain\Auth\Exception\RoleNotFoundException;
 use App\Domain\Auth\Repository\RoleRepositoryInterface;
 use App\Domain\Auth\Repository\UserRepositoryInterface;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(bus: 'command.bus', method: 'handle')]
 final class CreateUserHandler
 {
     public function __construct(

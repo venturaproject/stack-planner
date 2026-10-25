@@ -6,9 +6,7 @@ namespace App\Application\Auth\Command;
 
 use App\Domain\Auth\Exception\PermissionNotFoundException;
 use App\Domain\Auth\Repository\PermissionRepositoryInterface;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(bus: 'command.bus', method: 'handle')]
 final class DeletePermissionHandler
 {
     public function __construct(private readonly PermissionRepositoryInterface $permissions)

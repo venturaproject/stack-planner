@@ -10,9 +10,7 @@ use App\Domain\Auth\Exception\InvalidTotpCodeException;
 use App\Domain\Auth\Exception\TotpSetupNotInitiatedException;
 use App\Domain\Auth\Exception\UserNotFoundException;
 use App\Domain\Auth\Repository\UserRepositoryInterface;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(bus: 'command.bus', method: 'handle')]
 final class ConfirmTotpSetupHandler
 {
     public function __construct(

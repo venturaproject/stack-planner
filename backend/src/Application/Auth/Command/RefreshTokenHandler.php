@@ -10,9 +10,7 @@ use App\Application\Auth\Exception\InvalidCredentialsException;
 use App\Application\Auth\Security\AccessTokenIssuerInterface;
 use App\Domain\Auth\Entity\RefreshToken;
 use App\Domain\Auth\Repository\RefreshTokenRepositoryInterface;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(bus: 'command.bus', method: 'handle')]
 final class RefreshTokenHandler
 {
     public function __construct(

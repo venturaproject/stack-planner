@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace App\Application\Notification\Query;
 
 use App\Application\Notification\DTO\NotificationResponse;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(bus: 'query.bus', method: 'handle')]
 final class ListNotificationsHandler
 {
     public function __construct(private readonly NotificationReadModelInterface $notifications)

@@ -10,9 +10,7 @@ use App\Domain\ApiClient\Entity\ApiClientToken;
 use App\Domain\ApiClient\Repository\ApiClientRepositoryInterface;
 use App\Domain\ApiClient\Repository\ApiClientTokenRepositoryInterface;
 use DateTimeImmutable;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(bus: 'command.bus', method: 'handle')]
 final class RefreshApiTokenHandler
 {
     private const int ACCESS_TTL_SECS = 3600;

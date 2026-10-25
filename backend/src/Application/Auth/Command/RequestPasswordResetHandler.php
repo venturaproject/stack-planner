@@ -7,7 +7,6 @@ namespace App\Application\Auth\Command;
 use App\Application\Auth\Security\PasswordResetLinkSigner;
 use App\Application\Shared\Mail\MailerInterface;
 use App\Domain\Auth\Repository\UserRepositoryInterface;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * Deliberately silent for a non-existent or deactivated email — same shape as the
@@ -15,7 +14,6 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  * attacker probing this endpoint must not be able to tell which emails exist in the
  * system from the response.
  */
-#[AsMessageHandler(bus: 'command.bus', method: 'handle')]
 final class RequestPasswordResetHandler
 {
     public function __construct(

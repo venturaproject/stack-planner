@@ -6,9 +6,7 @@ namespace App\Application\Product\Query;
 
 use App\Application\Product\DTO\ProductResponse;
 use App\Application\Shared\DTO\PagedResponse;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(bus: 'query.bus', method: 'handle')]
 final class ListProductsHandler
 {
     private const LOW_STOCK_THRESHOLD = 5;

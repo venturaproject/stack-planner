@@ -23,6 +23,8 @@ interface IssueReadModelInterface
 
     public function findById(int $id): ?Issue;
 
+    public function findAttachmentById(int $id): ?IssueAttachment;
+
     /** @return IssueComment[] */
     public function findComments(int $issueId): array;
 

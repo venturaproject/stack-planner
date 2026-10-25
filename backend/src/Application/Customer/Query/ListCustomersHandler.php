@@ -6,9 +6,7 @@ namespace App\Application\Customer\Query;
 
 use App\Application\Customer\DTO\CustomerResponse;
 use App\Application\Shared\DTO\PagedResponse;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(bus: 'query.bus', method: 'handle')]
 final class ListCustomersHandler
 {
     public function __construct(private readonly CustomerReadModelInterface $customers)

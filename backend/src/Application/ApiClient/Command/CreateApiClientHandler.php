@@ -7,9 +7,7 @@ namespace App\Application\ApiClient\Command;
 use App\Application\ApiClient\DTO\ApiClientResponse;
 use App\Domain\ApiClient\Entity\ApiClient;
 use App\Domain\ApiClient\Repository\ApiClientRepositoryInterface;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(bus: 'command.bus', method: 'handle')]
 final class CreateApiClientHandler
 {
     public function __construct(private readonly ApiClientRepositoryInterface $clients)

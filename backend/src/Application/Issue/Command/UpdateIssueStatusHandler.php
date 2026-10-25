@@ -6,9 +6,7 @@ namespace App\Application\Issue\Command;
 
 use App\Domain\Issue\Exception\IssueNotFoundException;
 use App\Domain\Issue\Repository\IssueRepositoryInterface;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(bus: 'command.bus', method: 'handle')]
 final class UpdateIssueStatusHandler
 {
     public function __construct(private readonly IssueRepositoryInterface $issues)

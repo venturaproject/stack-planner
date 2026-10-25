@@ -8,9 +8,7 @@ use App\Application\Auth\DTO\TotpSetupResponse;
 use App\Application\Shared\Totp\TotpServiceInterface;
 use App\Domain\Auth\Exception\UserNotFoundException;
 use App\Domain\Auth\Repository\UserRepositoryInterface;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(bus: 'command.bus', method: 'handle')]
 final class SetUpTotpHandler
 {
     public function __construct(

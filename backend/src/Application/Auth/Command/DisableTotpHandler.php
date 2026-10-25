@@ -10,9 +10,7 @@ use App\Domain\Auth\Exception\TotpRequiredByPolicyException;
 use App\Domain\Auth\Repository\UserRepositoryInterface;
 use App\Domain\Settings\Entity\SecuritySettings;
 use App\Domain\Settings\Repository\SecuritySettingsRepositoryInterface;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(bus: 'command.bus', method: 'handle')]
 final class DisableTotpHandler
 {
     public function __construct(

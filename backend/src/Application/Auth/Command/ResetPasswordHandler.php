@@ -8,9 +8,7 @@ use App\Application\Auth\Security\PasswordHasherInterface;
 use App\Domain\Auth\Exception\UserNotFoundException;
 use App\Domain\Auth\Repository\RefreshTokenRepositoryInterface;
 use App\Domain\Auth\Repository\UserRepositoryInterface;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(bus: 'command.bus', method: 'handle')]
 final class ResetPasswordHandler
 {
     public function __construct(

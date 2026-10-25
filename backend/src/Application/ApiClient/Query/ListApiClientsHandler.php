@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace App\Application\ApiClient\Query;
 
 use App\Application\ApiClient\DTO\ApiClientResponse;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(bus: 'query.bus', method: 'handle')]
 final class ListApiClientsHandler
 {
     public function __construct(private readonly ApiClientReadModelInterface $clients)

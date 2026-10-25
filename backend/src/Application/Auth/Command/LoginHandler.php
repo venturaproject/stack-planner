@@ -20,9 +20,7 @@ use App\Domain\Auth\Repository\UserRepositoryInterface;
 use App\Domain\Settings\Entity\SecuritySettings;
 use App\Domain\Settings\Repository\SecuritySettingsRepositoryInterface;
 use DateTimeImmutable;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(bus: 'command.bus', method: 'handle')]
 final class LoginHandler
 {
     public function __construct(

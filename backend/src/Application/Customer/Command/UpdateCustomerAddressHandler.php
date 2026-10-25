@@ -8,9 +8,7 @@ use App\Application\Customer\DTO\CustomerResponse;
 use App\Domain\Customer\Exception\CustomerNotFoundException;
 use App\Domain\Customer\Repository\CustomerRepositoryInterface;
 use App\Domain\Customer\ValueObject\Address;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(bus: 'command.bus', method: 'handle')]
 final class UpdateCustomerAddressHandler
 {
     public function __construct(private readonly CustomerRepositoryInterface $customers)

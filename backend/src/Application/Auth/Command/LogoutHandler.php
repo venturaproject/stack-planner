@@ -7,9 +7,7 @@ namespace App\Application\Auth\Command;
 use App\Domain\Auth\Exception\UserNotFoundException;
 use App\Domain\Auth\Repository\RefreshTokenRepositoryInterface;
 use App\Domain\Auth\Repository\UserRepositoryInterface;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(bus: 'command.bus', method: 'handle')]
 final class LogoutHandler
 {
     public function __construct(

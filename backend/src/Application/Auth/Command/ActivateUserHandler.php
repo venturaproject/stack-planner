@@ -7,9 +7,7 @@ namespace App\Application\Auth\Command;
 use App\Application\Auth\Security\PasswordHasherInterface;
 use App\Domain\Auth\Exception\UserNotFoundException;
 use App\Domain\Auth\Repository\UserRepositoryInterface;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(bus: 'command.bus', method: 'handle')]
 final class ActivateUserHandler
 {
     public function __construct(

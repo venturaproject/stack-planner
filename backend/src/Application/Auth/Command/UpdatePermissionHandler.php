@@ -7,9 +7,7 @@ namespace App\Application\Auth\Command;
 use App\Application\Auth\DTO\PermissionResponse;
 use App\Domain\Auth\Exception\PermissionNotFoundException;
 use App\Domain\Auth\Repository\PermissionRepositoryInterface;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(bus: 'command.bus', method: 'handle')]
 final class UpdatePermissionHandler
 {
     public function __construct(private readonly PermissionRepositoryInterface $permissions)

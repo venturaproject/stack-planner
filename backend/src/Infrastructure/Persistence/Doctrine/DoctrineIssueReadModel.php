@@ -69,6 +69,11 @@ final class DoctrineIssueReadModel extends ServiceEntityRepository implements Is
         return $this->find($id);
     }
 
+    public function findAttachmentById(int $id): ?IssueAttachment
+    {
+        return $this->getEntityManager()->find(IssueAttachment::class, $id);
+    }
+
     public function findForUpdate(int $id): ?Issue
     {
         return $this->find($id);

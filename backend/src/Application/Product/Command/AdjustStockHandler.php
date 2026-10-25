@@ -8,9 +8,7 @@ use App\Application\Product\DTO\ProductResponse;
 use App\Domain\Product\Exception\ProductNotFoundException;
 use App\Domain\Product\Repository\ProductRepositoryInterface;
 use InvalidArgumentException;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(bus: 'command.bus', method: 'handle')]
 final class AdjustStockHandler
 {
     public function __construct(private readonly ProductRepositoryInterface $products)

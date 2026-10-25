@@ -18,10 +18,12 @@ return function (ContainerConfigurator $container): void {
     $services->alias(FileStorageInterface::class, LocalFileStorage::class);
 
     $services->set(UploadProductImageHandler::class)
-        ->autowire()->autoconfigure();
+        ->autowire()->autoconfigure()
+        ->tag('messenger.message_handler', ['bus' => 'command.bus', 'method' => 'handle']);
 
     $services->set(RemoveProductImageHandler::class)
-        ->autowire()->autoconfigure();
+        ->autowire()->autoconfigure()
+        ->tag('messenger.message_handler', ['bus' => 'command.bus', 'method' => 'handle']);
 
     $services->set(LocalFileStorage::class)
         ->autowire()

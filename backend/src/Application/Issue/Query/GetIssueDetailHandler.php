@@ -5,16 +5,26 @@ declare(strict_types=1);
 namespace App\Application\Issue\Query;
 
 use App\Domain\Issue\Exception\IssueNotFoundException;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(bus: 'query.bus', method: 'handle')]
 final class GetIssueDetailHandler
 {
     public function __construct(private readonly IssueReadModelInterface $issues)
     {
     }
 
-    /** @return array<string, mixed> */
+    /**
+     * @return array{
+     *     id: int|null, projectId: int, key: string, title: string, status: string, priority: string,
+     *     dueAt: string|null, startAt: string|null, epicId: int|null, sprintId: int|null, type: string,
+     *     storyPoints: int|null, reporterName: string, assigneeNames: list<string>, createdAt: string,
+     *     description: string, comments: array<int|string, array{id: int|null, authorName: string, content: string, createdAt: string}>,
+     *     checklist: array<int|string, array{id: int|null, text: string, isDone: bool, position: int}>,
+     *     worklogs: array<int|string, array{id: int|null, authorName: string, minutes: int, description: string, loggedAt: string}>,
+     *     links: array<int|string, array{id: int|null, type: string, targetId: int|null, targetKey: string|null, targetTitle: string|null}>,
+     *     activities: array<int|string, array{id: int|null, actorName: string, field: string, oldValue: string|null, newValue: string, createdAt: string}>,
+     *     attachments: array<int|string, array{id: int|null, filename: string, mimeType: string, sizeBytes: int, url: string}>
+     * }
+     */
     public function handle(GetIssueDetailQuery $query): array
     {
         $issue = $this->issues->findById($query->id);

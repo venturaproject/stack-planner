@@ -6,9 +6,7 @@ namespace App\Application\Auth\Query;
 
 use App\Application\Auth\DTO\RoleResponse;
 use App\Application\Shared\DTO\PagedResponse;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(bus: 'query.bus', method: 'handle')]
 final class ListRolesHandler
 {
     public function __construct(private readonly AuthReadModelInterface $roles)

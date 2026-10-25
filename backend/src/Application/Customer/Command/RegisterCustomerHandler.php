@@ -10,9 +10,7 @@ use App\Domain\Customer\Exception\EmailAlreadyRegisteredException;
 use App\Domain\Customer\Repository\CustomerRepositoryInterface;
 use App\Domain\Customer\ValueObject\Address;
 use App\Domain\Customer\ValueObject\Email;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(bus: 'command.bus', method: 'handle')]
 final class RegisterCustomerHandler
 {
     public function __construct(private readonly CustomerRepositoryInterface $customers)

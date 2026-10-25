@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Infrastructure\Http\Controller\Issue;
 
 use App\Application\Issue\Command\UploadIssueImageCommand;
+use App\Application\Issue\DTO\IssueAttachmentDownloadResponse;
+use App\Application\Issue\Query\GetIssueAttachmentQuery;
 use App\Application\Shared\Bus\CommandBusInterface;
+use App\Application\Shared\Bus\QueryBusInterface;
 use App\Application\Shared\Storage\FileStorageInterface;
-use App\Domain\Issue\Repository\IssueAttachmentRepositoryInterface;
 use App\Infrastructure\Http\UploadedImageValidator;
 use App\Infrastructure\Security\ProjectAccessPolicy;
 use App\Infrastructure\Security\Symfony\SecurityUser;
@@ -29,9 +31,9 @@ final class IssueAttachmentController extends AbstractController
 
     public function __construct(
         private readonly CommandBusInterface $commandBus,
+        private readonly QueryBusInterface $queryBus,
         private readonly UploadedImageValidator $uploadedImageValidator,
         private readonly ProjectAccessPolicy $projectAccess,
-        private readonly IssueAttachmentRepositoryInterface $attachments,
         private readonly FileStorageInterface $storage,
     ) {
     }
@@ -72,25 +74,26 @@ final class IssueAttachmentController extends AbstractController
     public function download(int $issueId, int $attachmentId): Response
     {
         $issue = $this->projectAccess->assertIssueAccess($issueId);
-        $attachment = $this->attachments->findById($attachmentId);
+        /** @var IssueAttachmentDownloadResponse|null $attachment */
+        $attachment = $this->queryBus->ask(new GetIssueAttachmentQuery($attachmentId));
 
-        if (null === $attachment || $attachment->getIssueId() !== $issueId) {
+        if (null === $attachment || $attachment->issueId !== $issueId) {
             throw new NotFoundHttpException();
         }
 
-        $mimeType = $attachment->getMimeType();
+        $mimeType = $attachment->mimeType;
         if (!\in_array($mimeType, self::ALLOWED_MIME_TYPES, true)) {
             throw new NotFoundHttpException();
         }
 
-        $contents = $this->storage->read('issue-attachments/'.$issue->getIssueKey(), $attachment->getFilename());
+        $contents = $this->storage->read('issue-attachments/'.$issue->getIssueKey(), $attachment->filename);
         if (null === $contents) {
             throw new NotFoundHttpException();
         }
 
         return new Response($contents, Response::HTTP_OK, [
             'Cache-Control' => 'private, no-store',
-            'Content-Disposition' => HeaderUtils::makeDisposition(ResponseHeaderBag::DISPOSITION_INLINE, $attachment->getFilename()),
+            'Content-Disposition' => HeaderUtils::makeDisposition(ResponseHeaderBag::DISPOSITION_INLINE, $attachment->filename),
             'Content-Type' => $mimeType,
             'X-Content-Type-Options' => 'nosniff',
         ]);

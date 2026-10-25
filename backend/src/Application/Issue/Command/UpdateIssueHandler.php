@@ -7,16 +7,14 @@ namespace App\Application\Issue\Command;
 use App\Domain\Issue\Exception\IssueNotFoundException;
 use App\Domain\Issue\Repository\IssueRepositoryInterface;
 use DateTimeImmutable;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(bus: 'command.bus', method: 'handle')]
 final class UpdateIssueHandler
 {
     public function __construct(private readonly IssueRepositoryInterface $issues)
     {
     }
 
-    /** @return array<string, mixed> */
+    /** @return array{id: int|null, projectId: int, key: string, title: string, status: string, priority: string, type: string, description: string|null, dueAt: string|null, epicId: int|null, sprintId: int|null, storyPoints: int|null, assigneeNames: list<string>} */
     public function handle(UpdateIssueCommand $command): array
     {
         $issue = $this->issues->findById($command->id);

@@ -11,9 +11,7 @@ use App\Domain\Issue\Repository\IssueAttachmentRepositoryInterface;
 use App\Domain\Issue\Repository\IssueRepositoryInterface;
 use DateTimeImmutable;
 use LogicException;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(bus: 'command.bus', method: 'handle')]
 final class UploadIssueImageHandler
 {
     public function __construct(
@@ -23,7 +21,7 @@ final class UploadIssueImageHandler
     ) {
     }
 
-    /** @return array{url: string, attachment: array<string, mixed>} */
+    /** @return array{url: string, attachment: array{id: int, issue_id: int, user_id: null, path: string, original_name: string, mime_type: string, size: int, user: array{id: null, name: string, email: string, avatar: null}, created_at: string, updated_at: string}} */
     public function handle(UploadIssueImageCommand $command): array
     {
         $issue = $this->issues->findById($command->issueId);

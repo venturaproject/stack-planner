@@ -14,9 +14,7 @@ use App\Domain\Auth\Repository\RefreshTokenRepositoryInterface;
 use App\Domain\Auth\Repository\RoleRepositoryInterface;
 use App\Domain\Auth\Repository\UserRepositoryInterface;
 use DateTimeImmutable;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(bus: 'command.bus', method: 'handle')]
 final class UpdateUserHandler
 {
     public function __construct(

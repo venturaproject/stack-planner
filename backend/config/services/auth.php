@@ -52,7 +52,8 @@ return function (ContainerConfigurator $container): void {
 
     $services->set(\App\Application\Auth\Command\RequestPasswordResetHandler::class)
         ->autowire()->autoconfigure()
-        ->arg('$appUrl', '%env(APP_URL)%');
+        ->arg('$appUrl', '%env(APP_URL)%')
+        ->tag('messenger.message_handler', ['bus' => 'command.bus', 'method' => 'handle']);
 
     // Bus interfaces → implementations
     $services->alias(CommandBusInterface::class, MessengerCommandBus::class);
@@ -61,13 +62,16 @@ return function (ContainerConfigurator $container): void {
     // Handlers with scalar params
     $services->set(LoginHandler::class)
         ->autowire()->autoconfigure()
-        ->arg('$refreshTtlSecs', '%env(int:JWT_REFRESH_TTL_SECS)%');
+        ->arg('$refreshTtlSecs', '%env(int:JWT_REFRESH_TTL_SECS)%')
+        ->tag('messenger.message_handler', ['bus' => 'command.bus', 'method' => 'handle']);
 
     $services->set(RefreshTokenHandler::class)
-        ->autowire()->autoconfigure();
+        ->autowire()->autoconfigure()
+        ->tag('messenger.message_handler', ['bus' => 'command.bus', 'method' => 'handle']);
 
     $services->set(UploadAvatarHandler::class)
-        ->autowire()->autoconfigure();
+        ->autowire()->autoconfigure()
+        ->tag('messenger.message_handler', ['bus' => 'command.bus', 'method' => 'handle']);
 
     $services->set(CreateUserCommand::class)
         ->autowire()->autoconfigure()

@@ -9,9 +9,7 @@ use App\Domain\Issue\Repository\IssueRepositoryInterface;
 use App\Domain\Project\Exception\ProjectNotFoundException;
 use App\Domain\Project\Repository\ProjectRepositoryInterface;
 use DateTimeImmutable;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(bus: 'command.bus', method: 'handle')]
 final class CreateIssueHandler
 {
     public function __construct(
@@ -20,7 +18,7 @@ final class CreateIssueHandler
     ) {
     }
 
-    /** @return array<string, mixed> */
+    /** @return array{id: int|null, projectId: int, key: string, title: string, status: string, priority: string, dueAt: string|null, type: string, storyPoints: int|null} */
     public function handle(CreateIssueCommand $command): array
     {
         $project = $this->projects->findById($command->projectId);

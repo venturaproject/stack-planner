@@ -11,9 +11,7 @@ use App\Domain\Project\Entity\ProjectMember;
 use App\Domain\Project\Repository\ProjectMemberRepositoryInterface;
 use App\Domain\Project\Repository\ProjectRepositoryInterface;
 use LogicException;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(bus: 'command.bus', method: 'handle')]
 final class CreateProjectHandler
 {
     public function __construct(
@@ -24,7 +22,7 @@ final class CreateProjectHandler
     ) {
     }
 
-    /** @return array<string, mixed> */
+    /** @return array{id: int|null, name: string, key: string, description: string|null, status: string, coverImage: string|null, color: string, startDate: null, endDate: null, issueCount: int, openIssueCount: int, completedIssueCount: int, activeSprintName: null, members: array{}, createdAt: string} */
     public function handle(CreateProjectCommand $command): array
     {
         $userId = $this->currentUser->currentUserId()

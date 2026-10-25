@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace App\Application\Product\Query;
 
 use App\Application\Shared\DTO\TabularExport;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(bus: 'query.bus', method: 'handle')]
 final class ExportProductsHandler
 {
     private const MAX_ROWS = 10000;

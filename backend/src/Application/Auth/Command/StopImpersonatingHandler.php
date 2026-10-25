@@ -12,7 +12,6 @@ use App\Domain\Auth\Exception\UserNotFoundException;
 use App\Domain\Auth\Repository\RefreshTokenRepositoryInterface;
 use App\Domain\Auth\Repository\UserRepositoryInterface;
 use DateTimeImmutable;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * Re-issues a normal (access + refresh token) session for the real admin identity
@@ -20,7 +19,6 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  * since that identity was already proven when the impersonation session started (see
  * ImpersonateUserHandler). Mirrors LoginHandler's token issuance, minus credentials.
  */
-#[AsMessageHandler(bus: 'command.bus', method: 'handle')]
 final class StopImpersonatingHandler
 {
     public function __construct(

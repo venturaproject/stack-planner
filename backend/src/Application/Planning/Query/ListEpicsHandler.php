@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace App\Application\Planning\Query;
 
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
-
-#[AsMessageHandler(bus: 'query.bus', method: 'handle')]
 final class ListEpicsHandler
 {
     public function __construct(private readonly PlanningReadModelInterface $planning)

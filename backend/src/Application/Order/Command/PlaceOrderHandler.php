@@ -10,7 +10,6 @@ use App\Domain\Order\Exception\OrderNotFoundException;
 use App\Domain\Order\Repository\OrderRepositoryInterface;
 use App\Domain\Product\Exception\ProductNotFoundException;
 use App\Domain\Product\Repository\ProductRepositoryInterface;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * Coordinates two aggregates for one command: reserves stock on every Product
@@ -19,7 +18,6 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  * other's internals — this handler is where the cross-aggregate consistency lives,
  * not inside Order::place() or Product::reserveStock().
  */
-#[AsMessageHandler(bus: 'command.bus', method: 'handle')]
 final class PlaceOrderHandler
 {
     public function __construct(

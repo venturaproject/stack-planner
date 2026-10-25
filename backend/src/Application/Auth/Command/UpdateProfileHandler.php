@@ -8,9 +8,7 @@ use App\Application\Auth\DTO\UserResponse;
 use App\Domain\Auth\Exception\UserNotFoundException;
 use App\Domain\Auth\Repository\UserRepositoryInterface;
 use DateTimeImmutable;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(bus: 'command.bus', method: 'handle')]
 final class UpdateProfileHandler
 {
     public function __construct(private readonly UserRepositoryInterface $users)

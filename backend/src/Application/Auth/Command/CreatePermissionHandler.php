@@ -8,9 +8,7 @@ use App\Application\Auth\DTO\PermissionResponse;
 use App\Domain\Auth\Entity\Permission;
 use App\Domain\Auth\Exception\PermissionAlreadyExistsException;
 use App\Domain\Auth\Repository\PermissionRepositoryInterface;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(bus: 'command.bus', method: 'handle')]
 final class CreatePermissionHandler
 {
     public function __construct(private readonly PermissionRepositoryInterface $permissions)

@@ -4,16 +4,13 @@ declare(strict_types=1);
 
 namespace App\Application\Project\Query;
 
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
-
-#[AsMessageHandler(bus: 'query.bus', method: 'handle')]
 final class ListProjectsHandler
 {
     public function __construct(private readonly ProjectReadModelInterface $projects)
     {
     }
 
-    /** @return array{data: list<array<string, mixed>>, meta: array{total: int}} */
+    /** @return array{data: list<array{id: int|null, name: string, key: string, description: string|null, status: string, coverImage: string|null, color: string, startDate: string|null, endDate: string|null, issueCount: int, openIssueCount: int, completedIssueCount: int, activeSprintName: string|null, members: list<array{name: string, avatar: string|null, role: string}>, createdAt: string}>, meta: array{total: int}} */
     public function handle(ListProjectsQuery $query): array
     {
         $data = [];

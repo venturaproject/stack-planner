@@ -6,9 +6,7 @@ namespace App\Application\Order\Query;
 
 use App\Application\Order\DTO\OrderResponse;
 use App\Domain\Order\Exception\OrderNotFoundException;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(bus: 'query.bus', method: 'handle')]
 final class GetOrderByIdHandler
 {
     public function __construct(private readonly OrderReadModelInterface $orders)

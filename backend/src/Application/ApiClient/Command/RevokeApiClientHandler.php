@@ -7,9 +7,7 @@ namespace App\Application\ApiClient\Command;
 use App\Domain\ApiClient\Exception\ApiClientNotFoundException;
 use App\Domain\ApiClient\Repository\ApiClientRepositoryInterface;
 use App\Domain\ApiClient\Repository\ApiClientTokenRepositoryInterface;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(bus: 'command.bus', method: 'handle')]
 final class RevokeApiClientHandler
 {
     public function __construct(

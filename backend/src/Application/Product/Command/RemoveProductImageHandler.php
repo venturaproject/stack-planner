@@ -8,9 +8,7 @@ use App\Application\Product\DTO\ProductResponse;
 use App\Application\Shared\Storage\FileStorageInterface;
 use App\Domain\Product\Exception\ProductNotFoundException;
 use App\Domain\Product\Repository\ProductRepositoryInterface;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(bus: 'command.bus', method: 'handle')]
 final class RemoveProductImageHandler
 {
     public function __construct(

@@ -49,11 +49,12 @@ riskier change than this exception, so it's deliberately not made. No ORM mappin
 Doctrine type these entities keep, and only for the `Collection` interface, never behavior.
 
 `Application` imports Domain types and application-owned ports, never concrete
-Infrastructure classes. `Infrastructure` is the only layer that knows Doctrine, Lexik
-JWT, or other third-party libraries. **Current migration seam:** command/query handlers
-are still registered using Symfony Messenger attributes. This is a technical annotation,
-not business logic; it is scheduled to move to Infrastructure configuration to make
-Application framework-free.
+Infrastructure classes or framework packages. `Infrastructure` is the only layer that
+knows Doctrine, Symfony Messenger, Lexik JWT, or other third-party libraries. CQRS
+handlers are registered from `config/services/application_handlers.php`; handler classes
+carry no Symfony Messenger attributes. Handlers with special service arguments that are
+explicitly redefined in context service files must keep their `messenger.message_handler`
+tag there as well.
 
 Application Command DTOs' input-shape validation (`NotBlank`, `Email`, `Length`, ...) is
 already framework-free: constraints live as external YAML mapping under
@@ -78,8 +79,7 @@ until that need is real.
 Every write goes through a **Command** dispatched on `command.bus`; every read through a
 **Query** on `query.bus`. Symfony Messenger is an Infrastructure adapter behind
 `Application/Shared/Bus/{Command,Query}BusInterface`; handler registration belongs to
-Infrastructure service configuration in the target architecture. The current attributes
-are the explicit migration seam described above.
+Infrastructure service configuration, never Application metadata.
 
 ```php
 // Application/Auth/Command/CreateUserCommand.php — plain data

@@ -5,21 +5,26 @@ declare(strict_types=1);
 namespace App\Application\Project\Query;
 
 use App\Domain\Auth\Repository\UserRepositoryInterface;
+use App\Domain\Project\Exception\ProjectNotFoundException;
 use App\Domain\Project\Repository\ProjectMemberRepositoryInterface;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use App\Domain\Project\Repository\ProjectRepositoryInterface;
 
-#[AsMessageHandler(bus: 'query.bus', method: 'handle')]
 final class ListProjectMembersHandler
 {
     public function __construct(
         private readonly ProjectMemberRepositoryInterface $members,
         private readonly UserRepositoryInterface $users,
+        private readonly ProjectRepositoryInterface $projects,
     ) {
     }
 
     /** @return list<array{userId: string, name: string, avatarUrl: ?string, role: string}> */
     public function handle(ListProjectMembersQuery $query): array
     {
+        if (null === $this->projects->findById($query->projectId)) {
+            throw ProjectNotFoundException::forId($query->projectId);
+        }
+
         $result = [];
         foreach ($this->members->findForProject($query->projectId) as $member) {
             $user = $this->users->findById($member->getUserId());

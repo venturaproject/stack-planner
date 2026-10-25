@@ -9,8 +9,6 @@ use App\Application\Project\Command\RemoveProjectMemberCommand;
 use App\Application\Project\Query\ListProjectMembersQuery;
 use App\Application\Shared\Bus\CommandBusInterface;
 use App\Application\Shared\Bus\QueryBusInterface;
-use App\Domain\Project\Exception\ProjectNotFoundException;
-use App\Domain\Project\Repository\ProjectRepositoryInterface;
 use App\Infrastructure\Http\Validation\ReadsJsonBody;
 use App\Infrastructure\Security\ProjectAccessPolicy;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -29,7 +27,6 @@ final class ProjectMemberController extends AbstractController
     public function __construct(
         private readonly QueryBusInterface $queryBus,
         private readonly CommandBusInterface $commandBus,
-        private readonly ProjectRepositoryInterface $projects,
         private readonly ProjectAccessPolicy $projectAccess,
     ) {
     }
@@ -38,9 +35,6 @@ final class ProjectMemberController extends AbstractController
     public function list(int $projectId): JsonResponse
     {
         $this->projectAccess->assertProjectAccess($projectId);
-        if (null === $this->projects->findById($projectId)) {
-            throw ProjectNotFoundException::forId($projectId);
-        }
 
         return $this->json(['data' => $this->queryBus->ask(new ListProjectMembersQuery($projectId))]);
     }

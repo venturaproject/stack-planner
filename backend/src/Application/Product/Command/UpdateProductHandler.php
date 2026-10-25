@@ -9,9 +9,7 @@ use App\Domain\Product\Exception\ProductNotFoundException;
 use App\Domain\Product\Repository\ProductRepositoryInterface;
 use App\Domain\Shared\ValueObject\Currency;
 use App\Domain\Shared\ValueObject\Money;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(bus: 'command.bus', method: 'handle')]
 final class UpdateProductHandler
 {
     public function __construct(private readonly ProductRepositoryInterface $products)

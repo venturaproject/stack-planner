@@ -7,9 +7,7 @@ namespace App\Application\Order\Query;
 use App\Application\Order\DTO\OrderResponse;
 use App\Application\Shared\DTO\PagedResponse;
 use App\Domain\Order\ValueObject\OrderStatus;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(bus: 'query.bus', method: 'handle')]
 final class ListOrdersHandler
 {
     public function __construct(private readonly OrderReadModelInterface $orders)

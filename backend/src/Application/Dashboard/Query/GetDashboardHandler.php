@@ -9,9 +9,7 @@ use App\Application\Dashboard\DTO\DashboardResponse;
 use App\Application\Order\Query\OrderReadModelInterface;
 use App\Application\Product\Query\ProductReadModelInterface;
 use App\Domain\Order\ValueObject\OrderStatus;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(bus: 'query.bus', method: 'handle')]
 final class GetDashboardHandler
 {
     private const LOW_STOCK_THRESHOLD = 5;

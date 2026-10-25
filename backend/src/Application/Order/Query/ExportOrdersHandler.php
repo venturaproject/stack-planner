@@ -6,9 +6,7 @@ namespace App\Application\Order\Query;
 
 use App\Application\Shared\DTO\TabularExport;
 use App\Domain\Order\ValueObject\OrderStatus;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(bus: 'query.bus', method: 'handle')]
 final class ExportOrdersHandler
 {
     private const MAX_ROWS = 10000;

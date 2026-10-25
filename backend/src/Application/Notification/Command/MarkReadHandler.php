@@ -7,9 +7,7 @@ namespace App\Application\Notification\Command;
 use App\Application\Notification\DTO\NotificationResponse;
 use App\Domain\Notification\Exception\NotificationNotFoundException;
 use App\Domain\Notification\Repository\NotificationRepositoryInterface;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(bus: 'command.bus', method: 'handle')]
 final class MarkReadHandler
 {
     public function __construct(private readonly NotificationRepositoryInterface $notifications)

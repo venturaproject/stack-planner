@@ -13,14 +13,12 @@ use App\Domain\Order\Repository\OrderRepositoryInterface;
 use App\Domain\Product\Exception\ProductNotFoundException;
 use App\Domain\Product\Repository\ProductRepositoryInterface;
 use InvalidArgumentException;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * Either appends a line to an existing Draft order (orderId given) or starts a new
  * Draft order for the given customer and adds the first line to it — mirrors a
  * typical "add to cart" flow where the cart is created implicitly on first add.
  */
-#[AsMessageHandler(bus: 'command.bus', method: 'handle')]
 final class AddOrderLineHandler
 {
     public function __construct(
