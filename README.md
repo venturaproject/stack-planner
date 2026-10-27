@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/demo_logo.png" alt="Boilerplate Planner — project management for development teams" width="100%">
+  <img src="docs/demo_logo.png?v=2" alt="Boilerplate Planner — project management for development teams" width="100%">
 </p>
 
 # Boilerplate Planner
